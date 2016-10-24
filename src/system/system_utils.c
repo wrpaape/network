@@ -104,6 +104,37 @@ connect_handle_cl(const int socket_descriptor,
 		  const socklen_t length_address,
 		  const struct HandlerClosure *const restrict fail_cl);
 
+/* accept */
+extern inline bool
+accept_status(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address);
+extern inline void
+accept_muffle(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address);
+extern inline bool
+accept_report(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address,
+	      const char *restrict *const restrict failure);
+extern inline void
+accept_handle(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address,
+	      Handler *const handle,
+	      void *arg);
+extern inline void
+accept_handle_cl(int *const restrict connect_descriptor,
+		 const int socket_descriptor,
+		 struct sockaddr *const restrict address,
+		 socklen_t *const restrict length_address,
+		 const struct HandlerClosure *const restrict fail_cl);
+
 #ifdef WIN32
 /* size_adapters_addresses */
 extern inline bool

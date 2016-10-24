@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UUID_UUID_UTILS_H_
-#define MYSQL_SEED_UUID_UUID_UTILS_H_
+#ifndef NETWORK_UUID_UUID_UTILS_H_
+#define NETWORK_UUID_UUID_UTILS_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -800,4 +800,4 @@ random_32_64_uuid_constructor(const char *restrict *const restrict failure)
 }
 
 
-#endif /* ifndef MYSQL_SEED_UUID_UUID_UTILS_H_ */
+#endif /* ifndef NETWORK_UUID_UUID_UTILS_H_ */

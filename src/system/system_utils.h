@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_SYSTEM_SYSTEM_UTILS_H_
-#define MYSQL_SEED_SYSTEM_SYSTEM_UTILS_H_
+#ifndef NETWORK_SYSTEM_SYSTEM_UTILS_H_
+#define NETWORK_SYSTEM_SYSTEM_UTILS_H_
 
 
 /* EXTERNAL DEPENDENCIES
@@ -15,6 +15,7 @@
 #else
 #	include <sys/ioctl.h>	/* iotcl */
 #	include <sys/socket.h>	/* socket, bind, listen, connect, accept */
+/* #	include <sys/select.h>	/1* select, fd_set *1/ */
 #	include <net/if.h>	/* ifreq, ifconf */
 #	include <netdb.h>	/* getaddrinfo */
 #endif /* ifdef WIN32 */
@@ -1942,4 +1943,4 @@ raise_handle_cl(const int signal_name,
 #undef FAIL_SWITCH_ERRNO_FAILURE
 #undef FAIL_SWITCH_FAILURE_POINTER
 
-#endif /* ifndef MYSQL_SEED_SYSTEM_SYSTEM_UTILS_H_ */
+#endif /* ifndef NETWORK_SYSTEM_SYSTEM_UTILS_H_ */

@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_FAIL_SWITCH_H_
-#define MYSQL_SEED_UTILS_FAIL_SWITCH_H_
+#ifndef NETWORK_UTILS_FAIL_SWITCH_H_
+#define NETWORK_UTILS_FAIL_SWITCH_H_
 
 /* external dependencies
  * ─────────────────────────────────────────────────────────────────────────── */
@@ -102,4 +102,4 @@ _FS_HANDLE_DEFAULT_CASE()
 FAIL_SWITCH_ERRNO_DEFAULT_CASE()					\
 }
 
-#endif /* ifndef MYSQL_SEED_UTILS_FAIL_SWITCH_H_ */
+#endif /* ifndef NETWORK_UTILS_FAIL_SWITCH_H_ */

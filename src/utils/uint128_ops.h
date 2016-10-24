@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_UINT128_OPS_H_
-#define MYSQL_SEED_UTILS_TYPES_UINT128_OPS_H_
+#ifndef NETWORK_UTILS_TYPES_UINT128_OPS_H_
+#define NETWORK_UTILS_TYPES_UINT128_OPS_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -117,4 +117,4 @@ uint128_xor(uint128_t *const restrict acc,
 }
 
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_UINT128_OPS_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_UINT128_OPS_H_ */

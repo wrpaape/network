@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_PROCEDURE_H_
-#define MYSQL_SEED_UTILS_TYPES_PROCEDURE_H_
+#ifndef NETWORK_UTILS_TYPES_PROCEDURE_H_
+#define NETWORK_UTILS_TYPES_PROCEDURE_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -23,4 +23,4 @@ Procedure(void *arg);
  * CONSTANTS */
 
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_PROCEDURE_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_PROCEDURE_H_ */

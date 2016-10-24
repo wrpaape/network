@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_MEMORY_MEMORY_UTILS_H_
-#define MYSQL_SEED_MEMORY_MEMORY_UTILS_H_
+#ifndef NETWORK_MEMORY_MEMORY_UTILS_H_
+#define NETWORK_MEMORY_MEMORY_UTILS_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -92,4 +92,4 @@ free_nullify_cleanup(void *arg);
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * HELPER FUNCTIONS */
 
-#endif /* ifndef MYSQL_SEED_MEMORY_MEMORY_UTILS_H_ */
+#endif /* ifndef NETWORK_MEMORY_MEMORY_UTILS_H_ */

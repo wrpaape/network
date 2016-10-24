@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_MEMORY_MEMORY_SWAP_H_
-#define MYSQL_SEED_MEMORY_MEMORY_SWAP_H_
+#ifndef NETWORK_MEMORY_MEMORY_SWAP_H_
+#define NETWORK_MEMORY_MEMORY_SWAP_H_
 
 /* macros defined with leading underscores used for keeping consistency between
  * declarations and definitions with 'memory_swap.c', not needed for interface */
@@ -201,4 +201,4 @@ inline void memory_swap16(void *const restrict x,
  * HELPER FUNCTIONS */
 
 
-#endif /* ifndef MYSQL_SEED_MEMORY_MEMORY_SWAP_H_ */
+#endif /* ifndef NETWORK_MEMORY_MEMORY_SWAP_H_ */

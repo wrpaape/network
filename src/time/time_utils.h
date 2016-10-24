@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_TIME_TIME_UTILS_H_
-#define MYSQL_SEED_TIME_TIME_UTILS_H_
+#ifndef NETWORK_TIME_TIME_UTILS_H_
+#define NETWORK_TIME_TIME_UTILS_H_
 
 
 /* EXTERNAL DEPENDENCIES
@@ -344,13 +344,13 @@ timestamp_now_status(struct Timestamp *const restrict timestamp)
 {
 	time_t now;
 
-	if (time_status(&now)) {
+	const bool status = time_status(&now);
+
+	if (LIKELY(status))
 		timestamp_init(timestamp,
 			       now);
-		return true;
-	}
 
-	return false;
+	return status;
 }
 
 inline void
@@ -370,14 +370,14 @@ timestamp_now_report(struct Timestamp *const restrict timestamp,
 {
 	time_t now;
 
-	if (LIKELY(time_report(&now,
-			       failure))) {
+	const bool status = time_report(&now,
+					failure);
+
+	if (LIKELY(status))
 		timestamp_init(timestamp,
 			       now);
-		return true;
-	}
 
-	return false;
+	return status;
 }
 
 inline void
@@ -795,4 +795,4 @@ timespec_offset_now_handle_cl(struct timespec *restrict time,
 #undef FAIL_SWITCH_ROUTINE
 #undef FAIL_SWITCH_FAILURE_POINTER
 
-#endif /* ifndef MYSQL_SEED_TIME_TIME_UTILS_H_ */
+#endif /* ifndef NETWORK_TIME_TIME_UTILS_H_ */

@@ -207,7 +207,7 @@ LD		:= gcc
 LD_FLAGS	:= $(EMPTY)
 endif
 
-LD_LIB_FLAGS	:= $(THREADS_LIB_FLAG) $(SYSTEM_LIB_FLAGS) $(LIBMYSQLCLIENT) -lc
+LD_LIB_FLAGS	:= $(THREADS_LIB_FLAG) $(SYSTEM_LIB_FLAGS) -lc
 
 # Make Directory
 # ──────────────────────────────────────────────────────────────────────────────
@@ -224,10 +224,10 @@ endif
 # ──────────────────────────────────────────────────────────────────────────────
 ifeq (T,$(SYSTEM_WINDOWS))
 # 'clean' command exceeds 8192 character limit for windows
-# RM		:= cmd \/C del
-# RM_FLAGS	:= /F /Q
-RM		:= rm
-RM_FLAGS	:= -rf
+RM		:= cmd \/C del
+RM_FLAGS	:= /F /Q
+# RM		:= rm
+# RM_FLAGS	:= -rf
 else
 RM		:= rm
 RM_FLAGS	:= -rf
@@ -263,7 +263,6 @@ STRING_INT_STRING_ATTRS_HDR	:= $(call HELPER_HEADER_PATH,string int_string_attrs
 STRING_PTR_STRING_ATTRS_HDR	:= $(call HELPER_HEADER_PATH,string ptr_string_attrs)
 STRING_STRING_TOKEN_HDR		:= $(call HELPER_HEADER_PATH,string string_token)
 STRING_STRING_MACROS_HDR	:= $(call HELPER_HEADER_PATH,string string_macros)
-MODE_HDR			:= $(call PROJECT_HEADER_PATH,mode)
 
 
 ## HELPER MODULES
@@ -725,6 +724,49 @@ TARGETS				+= $(UUID_UUID_UTILS_OBJ)
 
 
 
+# network/network_utils
+# ──────────────────────────────────────────────────────────────────────────────
+NETWORK_NETWORK_UTILS_SRC 	:= $(call HELPER_SOURCE_PATH,network network_utils)
+NETWORK_NETWORK_UTILS_HDR	:= $(call HELPER_HEADER_PATH,network network_utils)
+NETWORK_NETWORK_UTILS_OBJ 	:= $(call HELPER_OBJECT_PATH,network network_utils)
+# ─────────────── target prequisites ───────────────────────────────────────────
+NETWORK_NETWORK_UTILS_OBJ_PREQS	:= $(NETWORK_NETWORK_UTILS_SRC) 	\
+			   	   $(NETWORK_NETWORK_UTILS_HDR)		\
+			   	   $(SYSTEM_EXIT_UTILS_HDR)
+NETWORK_NETWORK_UTILS_OBJ_GROUP	:= $(NETWORK_NETWORK_UTILS_OBJ)		\
+				   $(SYSTEM_EXIT_UTILS_OBJ_GROUP)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(NETWORK_NETWORK_UTILS_OBJ)
+
+
+# endian-ness tester
+# ──────────────────────────────────────────────────────────────────────────────
+IS_LITTLE_ENDIAN_SRC 		:= $(call HELPER_SOURCE_PATH,network is_little_endian)
+IS_LITTLE_ENDIAN_OBJ		:= $(call HELPER_OBJECT_PATH,network is_little_endian)
+IS_LITTLE_ENDIAN_BIN		:= $(call BINARY_PATH,is_little_endian)
+# ─────────────── target prequisites ───────────────────────────────────────────
+IS_LITTLE_ENDIAN_BIN_PREQS	:= $(IS_LITTLE_ENDIAN_OBJ)
+IS_LITTLE_ENDIAN_OBJ_PREQS	:= $(IS_LITTLE_ENDIAN_SRC)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(IS_LITTLE_ENDIAN_OBJ)	\
+				   $(IS_LITTLE_ENDIAN_BIN)
+
+# timestamp_client
+# ──────────────────────────────────────────────────────────────────────────────
+TIMESTAMP_CLIENT_SRC 		:= $(call HELPER_SOURCE_PATH,client timestamp_client)
+TIMESTAMP_CLIENT_OBJ		:= $(call HELPER_OBJECT_PATH,client timestamp_client)
+TIMESTAMP_CLIENT_BIN		:= $(call BINARY_PATH,timestamp_client)
+# ─────────────── target prequisites ───────────────────────────────────────────
+TIMESTAMP_CLIENT_BIN_PREQS	:= $(TIMESTAMP_CLIENT_OBJ)		\
+				   $(NETWORK_NETWORK_UTILS_OBJ_GROUP)
+TIMESTAMP_CLIENT_OBJ_PREQS	:= $(TIMESTAMP_CLIENT_SRC)		\
+				   $(NETWORK_NETWORK_UTILS_HDR)		\
+				   $(IS_LITTLE_ENDIAN_BIN)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(TIMESTAMP_CLIENT_OBJ)		\
+				   $(TIMESTAMP_CLIENT_BIN)
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # ──────────────────────────────────────────────────────────────────────────────
 # 				MAKE RULES
@@ -742,6 +784,26 @@ all: $(TARGETS)
 # ──────────────────────────────────────────────────────────────────────────────
 clean:
 	$(RM) $(RM_FLAGS) $(TARGETS)
+
+# set endianess environment variable
+# ──────────────────────────────────────────────────────────────────────────────
+is_little_endian: $(IS_LITTLE_ENDIAN_BIN)
+	$(eval IS_LITTLE_ENDIAN := $(shell $(IS_LITTLE_ENDIAN_BIN)))
+
+# make client/timestamp_client binary
+# ──────────────────────────────────────────────────────────────────────────────
+$(TIMESTAMP_CLIENT_BIN): $(TIMESTAMP_CLIENT_BIN_PREQS)
+	$(LD) $(LD_FLAGS) $^ $(LD_LIB_FLAGS) -o $@
+
+# make client/timestamp_client object
+# ──────────────────────────────────────────────────────────────────────────────
+$(TIMESTAMP_CLIENT_OBJ): $(TIMESTAMP_CLIENT_OBJ_PREQS) is_little_endian
+	$(CC) $(CC_FLAGS) -DIS_LITTLE_ENDIAN=$(IS_LITTLE_ENDIAN) -c $< -o $@
+
+# make network/network_utils object
+# ──────────────────────────────────────────────────────────────────────────────
+$(NETWORK_NETWORK_UTILS_OBJ): $(NETWORK_NETWORK_UTILS_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
 
 # make thread/thread_pool object
 # ──────────────────────────────────────────────────────────────────────────────
@@ -872,3 +934,14 @@ $(UTILS_CLOSURE_OBJ): $(UTILS_CLOSURE_OBJ_PREQS)
 # ──────────────────────────────────────────────────────────────────────────────
 $(UTILS_UTILS_OBJ): $(UTILS_UTILS_OBJ_PREQS)
 	$(CC) $(CC_FLAGS) -c $< -o $@
+
+# make network/is_little_endian binary
+# ──────────────────────────────────────────────────────────────────────────────
+$(IS_LITTLE_ENDIAN_BIN): $(IS_LITTLE_ENDIAN_BIN_PREQS)
+	$(LD) $(LD_FLAGS) $^ $(LD_LIB_FLAGS) -o $@
+
+# make network/is_little_endian object
+# ──────────────────────────────────────────────────────────────────────────────
+$(IS_LITTLE_ENDIAN_OBJ): $(IS_LITTLE_ENDIAN_OBJ_PREQS)
+	$(CC) $(CC_FLAGS) -c $< -o $@
+

@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_SYSTEM_STDIO_UTILS_H_
-#define MYSQL_SEED_SYSTEM_STDIO_UTILS_H_
+#ifndef NETWORK_SYSTEM_STDIO_UTILS_H_
+#define NETWORK_SYSTEM_STDIO_UTILS_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -713,4 +713,4 @@ read_password(char *const restrict buffer,
 #undef FAIL_SWITCH_ERRNO_FAILURE
 #undef FAIL_SWITCH_FAILURE_POINTER
 
-#endif /* ifndef MYSQL_SEED_SYSTEM_STDIO_UTILS_H_ */
+#endif /* ifndef NETWORK_SYSTEM_STDIO_UTILS_H_ */

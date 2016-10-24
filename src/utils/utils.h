@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_UTILS_H_
-#define MYSQL_SEED_UTILS_UTILS_H_
+#ifndef NETWORK_UTILS_UTILS_H_
+#define NETWORK_UTILS_UTILS_H_
 
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
@@ -157,4 +157,4 @@ inline unsigned long handle_round_pow_two(const unsigned long num)
 	return round_pow_two_lb(num);
 }
 
-#endif /* ifndef MYSQL_SEED_UTILS_UTILS_H_ */
+#endif /* ifndef NETWORK_UTILS_UTILS_H_ */

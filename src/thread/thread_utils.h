@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_THREAD_THREAD_UTILS_H_
-#define MYSQL_SEED_THREAD_THREAD_UTILS_H_
+#ifndef NETWORK_THREAD_THREAD_UTILS_H_
+#define NETWORK_THREAD_THREAD_UTILS_H_
 
 /* external dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -1406,4 +1406,4 @@ thread_utils_destructor_muffle(void)
 #undef FAIL_SWITCH_FAILURE_POINTER
 #undef FAIL_SWITCH_ROUTINE
 
-#endif /* ifndef MYSQL_SEED_THREAD_THREAD_UTILS_H_ */
+#endif /* ifndef NETWORK_THREAD_THREAD_UTILS_H_ */

@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_THREAD_THREAD_QUEUE_H_
-#define MYSQL_SEED_THREAD_THREAD_QUEUE_H_
+#ifndef NETWORK_THREAD_THREAD_QUEUE_H_
+#define NETWORK_THREAD_THREAD_QUEUE_H_
 
 /* external dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -980,4 +980,4 @@ task_store_swap(struct TaskStore *const restrict store1,
 	store2->last = swap;
 }
 
-#endif /* ifndef MYSQL_SEED_THREAD_THREAD_QUEUE_H_ */
+#endif /* ifndef NETWORK_THREAD_THREAD_QUEUE_H_ */

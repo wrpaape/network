@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_MEMORY_MEMORY_ZERO_H_
-#define MYSQL_SEED_MEMORY_MEMORY_ZERO_H_
+#ifndef NETWORK_MEMORY_MEMORY_ZERO_H_
+#define NETWORK_MEMORY_MEMORY_ZERO_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -70,4 +70,4 @@ memory_zero(void *const restrict ptr,
 }
 
 
-#endif /* ifndef MYSQL_SEED_MEMORY_MEMORY_ZERO_H_ */
+#endif /* ifndef NETWORK_MEMORY_MEMORY_ZERO_H_ */

@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_MEMORY_MEMORY_PUT_ARRAY_H_
-#define MYSQL_SEED_MEMORY_MEMORY_PUT_ARRAY_H_
+#ifndef NETWORK_MEMORY_MEMORY_PUT_ARRAY_H_
+#define NETWORK_MEMORY_MEMORY_PUT_ARRAY_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -397,4 +397,4 @@ inline void *memory_put_array_width(void *restrict x,
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * TOP-LEVEL FUNCTIONS */
 
-#endif /* ifndef MYSQL_SEED_MEMORY_MEMORY_PUT_ARRAY_H_ */
+#endif /* ifndef NETWORK_MEMORY_MEMORY_PUT_ARRAY_H_ */

@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_STRING_STRING_MACROS_H_
-#define MYSQL_SEED_STRING_STRING_MACROS_H_
+#ifndef NETWORK_STRING_STRING_MACROS_H_
+#define NETWORK_STRING_STRING_MACROS_H_
 
 /* external dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -304,4 +304,4 @@
 #define MALLOC_FAILURE_MESSAGE(SOURCE)					\
 FAILURE_REASON(SOURCE, MALLOC_FAILURE_REASON)
 
-#endif /* ifndef MYSQL_SEED_STRING_STRING_MACROS_H_ */
+#endif /* ifndef NETWORK_STRING_STRING_MACROS_H_ */

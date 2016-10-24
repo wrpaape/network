@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_WIDTH_H_
-#define MYSQL_SEED_UTILS_TYPES_WIDTH_H_
+#ifndef NETWORK_UTILS_TYPES_WIDTH_H_
+#define NETWORK_UTILS_TYPES_WIDTH_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -126,4 +126,4 @@ typedef word_t WidthWord;
  * CONSTANTS */
 
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_WIDTH_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_WIDTH_H_ */

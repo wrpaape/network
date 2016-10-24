@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_ACTION_H_
-#define MYSQL_SEED_UTILS_TYPES_ACTION_H_
+#ifndef NETWORK_UTILS_TYPES_ACTION_H_
+#define NETWORK_UTILS_TYPES_ACTION_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -23,4 +23,4 @@ Action(void);
  * CONSTANTS */
 
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_ACTION_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_ACTION_H_ */

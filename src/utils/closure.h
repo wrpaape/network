@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_CLOSURE_H_
-#define MYSQL_SEED_UTILS_CLOSURE_H_
+#ifndef NETWORK_UTILS_CLOSURE_H_
+#define NETWORK_UTILS_CLOSURE_H_
 
 /* External Dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -82,4 +82,4 @@ handler_closure_call(const struct HandlerClosure *const restrict handler_cl,
 	__builtin_unreachable();
 }
 
-#endif /* ifndef MYSQL_SEED_UTILS_CLOSURE_H_ */
+#endif /* ifndef NETWORK_UTILS_CLOSURE_H_ */

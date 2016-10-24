@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_STRING_INT_STRING_ATTRS_H_
-#define MYSQL_SEED_STRING_INT_STRING_ATTRS_H_
+#ifndef NETWORK_STRING_INT_STRING_ATTRS_H_
+#define NETWORK_STRING_INT_STRING_ATTRS_H_
 
 /* external dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -82,4 +82,4 @@
 #	undef  DIGIT_STRING_INTMAX_MIN
 #endif	/* if (UINTMAX_MAX == UINT64_MAX) */
 
-#endif /* ifndef MYSQL_SEED_STRING_INT_STRING_ATTRS_H_ */
+#endif /* ifndef NETWORK_STRING_INT_STRING_ATTRS_H_ */

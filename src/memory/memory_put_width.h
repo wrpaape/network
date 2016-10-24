@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_MEMORY_MEMORY_PUT_WIDTH_H_
-#define MYSQL_SEED_MEMORY_MEMORY_PUT_WIDTH_H_
+#ifndef NETWORK_MEMORY_MEMORY_PUT_WIDTH_H_
+#define NETWORK_MEMORY_MEMORY_PUT_WIDTH_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -24,4 +24,4 @@ MEMORY_SET_WIDTH_MAX(X, Y); HANDLE_GET MEMORY_GET_WIDTH_MAX(X, 1l)
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * FUNCTION-LIKE MACROS */
 
-#endif /* ifndef MYSQL_SEED_MEMORY_MEMORY_PUT_WIDTH_H_ */
+#endif /* ifndef NETWORK_MEMORY_MEMORY_PUT_WIDTH_H_ */

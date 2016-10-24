@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_OCTET_H_
-#define MYSQL_SEED_UTILS_TYPES_OCTET_H_
+#ifndef NETWORK_UTILS_TYPES_OCTET_H_
+#define NETWORK_UTILS_TYPES_OCTET_H_
 
 
 /* EXTERNAL DEPENDENCIES
@@ -28,4 +28,4 @@ typedef uint8_t octet_t;
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * CONSTANTS */
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_OCTET_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_OCTET_H_ */

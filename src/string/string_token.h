@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_STRING_STRING_TOKEN_H_
-#define MYSQL_SEED_STRING_STRING_TOKEN_H_
+#ifndef NETWORK_STRING_STRING_TOKEN_H_
+#define NETWORK_STRING_STRING_TOKEN_H_
 
 
 /*			- token.h -
@@ -270,4 +270,4 @@ do {				\
 /* ◯ */
 #define PUT_LARGE_CIRCLE(PTR)	_GEO_CIRC(PTR, 175)
 
-#endif /* ifndef MYSQL_SEED_STRING_STRING_TOKEN_H_ */
+#endif /* ifndef NETWORK_STRING_STRING_TOKEN_H_ */

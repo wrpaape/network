@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_CHAR_ATTRS_H_
-#define MYSQL_SEED_UTILS_CHAR_ATTRS_H_
+#ifndef NETWORK_UTILS_CHAR_ATTRS_H_
+#define NETWORK_UTILS_CHAR_ATTRS_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -45,4 +45,4 @@
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * CONSTANTS */
 
-#endif /* ifndef MYSQL_SEED_UTILS_CHAR_ATTRS_H_ */
+#endif /* ifndef NETWORK_UTILS_CHAR_ATTRS_H_ */

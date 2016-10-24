@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_THREAD_THREAD_POOL_H_
-#define MYSQL_SEED_THREAD_THREAD_POOL_H_
+#ifndef NETWORK_THREAD_THREAD_POOL_H_
+#define NETWORK_THREAD_THREAD_POOL_H_
 
 /* external dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -798,4 +798,4 @@ thread_pool_destroy(struct ThreadPool *const restrict pool)
 	free(pool);
 }
 
-#endif /* ifndef MYSQL_SEED_THREAD_THREAD_POOL_H_ */
+#endif /* ifndef NETWORK_THREAD_THREAD_POOL_H_ */

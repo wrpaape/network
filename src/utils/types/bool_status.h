@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_BOOL_STATUS_H_
-#define MYSQL_SEED_UTILS_TYPES_BOOL_STATUS_H_
+#ifndef NETWORK_UTILS_TYPES_BOOL_STATUS_H_
+#define NETWORK_UTILS_TYPES_BOOL_STATUS_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -29,4 +29,4 @@ enum BoolStatus {
  * CONSTANTS */
 
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_BOOL_STATUS_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_BOOL_STATUS_H_ */

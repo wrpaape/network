@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_BITWISE_BITWISE_UTILS_H_
-#define MYSQL_SEED_BITWISE_BITWISE_UTILS_H_
+#ifndef NETWORK_BITWISE_BITWISE_UTILS_H_
+#define NETWORK_BITWISE_BITWISE_UTILS_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -84,4 +84,4 @@ word_rotate_right(const word_t word,
 }
 
 
-#endif /* ifndef MYSQL_SEED_BITWISE_BITWISE_UTILS_H_ */
+#endif /* ifndef NETWORK_BITWISE_BITWISE_UTILS_H_ */

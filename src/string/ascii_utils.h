@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_STRING_ASCII_UTILS_H_
-#define MYSQL_SEED_STRING_ASCII_UTILS_H_
+#ifndef NETWORK_STRING_ASCII_UTILS_H_
+#define NETWORK_STRING_ASCII_UTILS_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -352,4 +352,4 @@ togglecase_ascii_string(ascii_t *restrict string)
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * TOP-LEVEL FUNCTIONS */
 
-#endif /* ifndef MYSQL_SEED_STRING_ASCII_UTILS_H_ */
+#endif /* ifndef NETWORK_STRING_ASCII_UTILS_H_ */

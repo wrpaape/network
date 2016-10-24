@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_THREAD_THREAD_LOG_H_
-#define MYSQL_SEED_THREAD_THREAD_LOG_H_
+#ifndef NETWORK_THREAD_THREAD_LOG_H_
+#define NETWORK_THREAD_THREAD_LOG_H_
 
 /* external dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -445,4 +445,4 @@ thread_log_init(struct ThreadLog *const restrict log,
 				      sizeof(THREAD_LOG_HEADER_2) - 1lu);
 }
 
-#endif /* ifndef MYSQL_SEED_THREAD_THREAD_LOG_H_ */
+#endif /* ifndef NETWORK_THREAD_THREAD_LOG_H_ */

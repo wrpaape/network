@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_RANDOM_PCG_RANDOM_H_
-#define MYSQL_SEED_RANDOM_PCG_RANDOM_H_
+#ifndef NETWORK_RANDOM_PCG_RANDOM_H_
+#define NETWORK_RANDOM_PCG_RANDOM_H_
 
 
 /* external dependencies
@@ -144,4 +144,4 @@ pcg64_random_r(pcg64_random_t *const restrict rng)
 }
 
 
-#endif /* ifndef MYSQL_SEED_RANDOM_PCG_RANDOM_H_ */
+#endif /* ifndef NETWORK_RANDOM_PCG_RANDOM_H_ */

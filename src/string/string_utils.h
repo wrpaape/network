@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_STRING_STRING_UTILS
-#define MYSQL_SEED_STRING_STRING_UTILS
+#ifndef NETWORK_STRING_STRING_UTILS
+#define NETWORK_STRING_STRING_UTILS
 
 
 /* external dependencies
@@ -2453,4 +2453,4 @@ put_win32_failure(char *restrict buffer,
 				sizeof(WIN32_FAILURE_CLOSE) - 1u);
 }
 #endif /* ifdef WIN32 */
-#endif	/* MYSQL_SEED_STRING_STRING_UTILS */
+#endif	/* NETWORK_STRING_STRING_UTILS */

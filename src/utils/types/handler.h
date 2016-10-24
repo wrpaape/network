@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_HANDLER_H_
-#define MYSQL_SEED_UTILS_TYPES_HANDLER_H_
+#ifndef NETWORK_UTILS_TYPES_HANDLER_H_
+#define NETWORK_UTILS_TYPES_HANDLER_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -26,4 +26,4 @@ __attribute__((noreturn));
  * CONSTANTS */
 
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_HANDLER_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_HANDLER_H_ */

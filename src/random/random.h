@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_RANDOM_RANDOM_H_
-#define MYSQL_SEED_RANDOM_RANDOM_H_
+#ifndef NETWORK_RANDOM_RANDOM_H_
+#define NETWORK_RANDOM_RANDOM_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -451,4 +451,4 @@ create_random_int32_array_in_range(const size_t length,
 	return array;
 }
 
-#endif /* ifndef MYSQL_SEED_RANDOM_RANDOM_H_ */
+#endif /* ifndef NETWORK_RANDOM_RANDOM_H_ */

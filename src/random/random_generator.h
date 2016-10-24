@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_RANDOM_RANDOM_GENERATOR_H_
-#define MYSQL_SEED_RANDOM_RANDOM_GENERATOR_H_
+#ifndef NETWORK_RANDOM_RANDOM_GENERATOR_H_
+#define NETWORK_RANDOM_RANDOM_GENERATOR_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -139,4 +139,4 @@ intmax_t
 generate_i_bound_64_offset_32(const struct BoundOffsetI *const restrict params);
 intmax_t
 generate_i_bound_64_offset_64(const struct BoundOffsetI *const restrict params);
-#endif /* ifndef MYSQL_SEED_RANDOM_RANDOM_GENERATOR_H_ */
+#endif /* ifndef NETWORK_RANDOM_RANDOM_GENERATOR_H_ */

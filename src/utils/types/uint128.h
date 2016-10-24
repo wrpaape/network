@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_UTILS_TYPES_UINT128_H_
-#define MYSQL_SEED_UTILS_TYPES_UINT128_H_
+#ifndef NETWORK_UTILS_TYPES_UINT128_H_
+#define NETWORK_UTILS_TYPES_UINT128_H_
 
 /* external dependencies
  * ────────────────────────────────────────────────────────────────────────── */
@@ -24,4 +24,4 @@
 	} uint128_t;
 #endif /* if HAVE_128_BIT_OPERATIONS */
 
-#endif /* ifndef MYSQL_SEED_UTILS_TYPES_UINT128_H_ */
+#endif /* ifndef NETWORK_UTILS_TYPES_UINT128_H_ */

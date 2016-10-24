@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_STRING_UTF8_UTILS_H_
-#define MYSQL_SEED_STRING_UTF8_UTILS_H_
+#ifndef NETWORK_STRING_UTF8_UTILS_H_
+#define NETWORK_STRING_UTF8_UTILS_H_
 
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
@@ -291,4 +291,4 @@ utf8_string_size_length_handle_cl(size_t *const restrict size,
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * TOP-LEVEL FUNCTIONS */
 
-#endif /* ifndef MYSQL_SEED_STRING_UTF8_UTILS_H_ */
+#endif /* ifndef NETWORK_STRING_UTF8_UTILS_H_ */

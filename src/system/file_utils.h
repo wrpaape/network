@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_SYSTEM_FILE_UTILS_H_
-#define MYSQL_SEED_SYSTEM_FILE_UTILS_H_
+#ifndef NETWORK_SYSTEM_FILE_UTILS_H_
+#define NETWORK_SYSTEM_FILE_UTILS_H_
 
 /* EXTERNAL DEPENDENCIES ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
@@ -3427,4 +3427,4 @@ is_dot_dir(const char *const restrict filename)
 #undef FAIL_SWITCH_ERRNO_FAILURE
 #undef FAIL_SWITCH_FAILURE_POINTER
 
-#endif /* ifndef MYSQL_SEED_SYSTEM_FILE_UTILS_H_ */
+#endif /* ifndef NETWORK_SYSTEM_FILE_UTILS_H_ */

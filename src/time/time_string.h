@@ -1,5 +1,5 @@
-#ifndef MYSQL_SEED_TIME_TIME_STRING_H_
-#define MYSQL_SEED_TIME_TIME_STRING_H_
+#ifndef NETWORK_TIME_TIME_STRING_H_
+#define NETWORK_TIME_TIME_STRING_H_
 
 /* external dependencies
  *─────────────────────────────────────────────────────────────────────────── */
@@ -850,4 +850,4 @@ datetime_string_increment(char *restrict ptr)
 	}
 }
 
-#endif /* ifndef MYSQL_SEED_TIME_TIME_STRING_H_ */
+#endif /* ifndef NETWORK_TIME_TIME_STRING_H_ */
