@@ -31,6 +31,32 @@ socket_handle_cl(int *const restrict socket_descriptor,
 		 const int protocol,
 		 const struct HandlerClosure *const restrict fail_cl);
 
+/* bind */
+extern inline bool
+bind_status(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len);
+extern inline void
+bind_muffle(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len);
+extern inline bool
+bind_report(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len,
+	    const char *restrict *const restrict failure);
+extern inline void
+bind_handle(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len,
+	    Handler *const handle,
+	    void *arg);
+extern inline void
+bind_handle_cl(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t address_len,
+	       const struct HandlerClosure *const restrict fail_cl);
+
 #ifdef WIN32
 /* size_adapters_addresses */
 extern inline bool

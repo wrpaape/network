@@ -233,6 +233,140 @@ socket_handle_cl(int *const restrict socket_descriptor,
 	__builtin_unreachable();
 }
 
+/* bind */
+inline bool
+bind_status(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len)
+{
+	return bind(socket_descriptor,
+		    address,
+		    address_len) == 0;
+}
+
+inline void
+bind_muffle(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len)
+{
+	(void) bind(socket_descriptor,
+		    address,
+		    address_len);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define	FAIL_SWITCH_ROUTINE bind
+inline bool
+bind_report(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len,
+	    const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(socket_descriptor,
+			       address,
+			       address_len)
+	FAIL_SWITCH_ERRNO_CASE_2(EACCES,
+				 "The requested address is protected, and the "
+				 "current user has inadequate permission to "
+				 "access it.",
+				 "A component of the path prefix does not allow"
+				 " searching or the node's parent directory "
+				 "denies write permission.")
+	FAIL_SWITCH_ERRNO_CASE_1(EADDRINUSE,
+				 "The specified address is already in use.")
+	FAIL_SWITCH_ERRNO_CASE_1(EADDRNOTAVAIL,
+				 "The specified address is not available from "
+				 "the local machine.")
+	FAIL_SWITCH_ERRNO_CASE_1(EAFNOSUPPORT,
+				 "'address' is not valid for the address family"
+				 " of 'socket_descriptor'.")
+	FAIL_SWITCH_ERRNO_CASE_1(EBADF,
+				 "'socket_descriptor' is not a valid file "
+				 "descriptor.")
+	FAIL_SWITCH_ERRNO_CASE_1(EDESTADDRREQ,
+				 "'socket_descriptor' is a null pointer.")
+	FAIL_SWITCH_ERRNO_CASE_1(EFAULT,
+				 "The 'address' parameter is not in a valid "
+				 "part of the user address space.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINVAL,
+				 "'socket_descriptor' is already bound to an "
+				 "address and the protocol does not support "
+				 "binding to a new address.  Alternatively, "
+				 "socket may have been shut down.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTSOCK,
+				 "'socket_descriptor' does not refer to a "
+				 "socket.")
+	FAIL_SWITCH_ERRNO_CASE_1(EOPNOTSUPP,
+				 "'socket_descriptor' is not of a type that can"
+				 " be bound to an address.")
+	FAIL_SWITCH_ERRNO_CASE_1(EEXIST,
+				 "A file already exists at the pathname. "
+				 "unlink(2) it first.")
+	FAIL_SWITCH_ERRNO_CASE_1(EIO,
+				 "An I/O error occurred while making the "
+				 "directory entry or allocating the inode.")
+	FAIL_SWITCH_ERRNO_CASE_1(EISDIR,
+				 "An empty pathname was specified.")
+	FAIL_SWITCH_ERRNO_CASE_1(ELOOP,
+				 "Too many symbolic links were encountered in "
+				 "translating the pathname.  This is taken to "
+				 "be indicative of a looping symbolic link.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENAMETOOLONG,
+				 "A component of a pathname exceeded {NAME_MAX}"
+				 " characters, or an entire path name exceeded "
+				 "{PATH_MAX} characters.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOENT,
+				 "A component of the path name does not refer "
+				 "to an existing file.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTDIR,
+				 "A component of the path prefix is not a "
+				 "directory.")
+	FAIL_SWITCH_ERRNO_CASE_1(EROFS,
+				 "The name would reside on a read-only file "
+				 "system.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+bind_handle(const int socket_descriptor,
+	    const struct sockaddr *const restrict address,
+	    const socklen_t address_len,
+	    Handler *const handle,
+	    void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(bind_report(socket_descriptor,
+			       address,
+			       address_len,
+			       &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+bind_handle_cl(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t address_len,
+	       const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(bind_report(socket_descriptor,
+			       address,
+			       address_len,
+			       &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
+
 
 #ifdef WIN32
 /* size_adapters_addresses */
