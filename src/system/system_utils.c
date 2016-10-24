@@ -78,6 +78,32 @@ listen_handle_cl(const int socket_descriptor,
 		 const int backlog,
 		 const struct HandlerClosure *const restrict fail_cl);
 
+/* connect */
+extern inline bool
+connect_status(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address);
+extern inline void
+connect_muffle(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address);
+extern inline bool
+connect_report(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address,
+	       const char *restrict *const restrict failure);
+extern inline void
+connect_handle(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address,
+	       Handler *const handle,
+	       void *arg);
+extern inline void
+connect_handle_cl(const int socket_descriptor,
+		  const struct sockaddr *const restrict address,
+		  const socklen_t length_address,
+		  const struct HandlerClosure *const restrict fail_cl);
+
 #ifdef WIN32
 /* size_adapters_addresses */
 extern inline bool

@@ -5,15 +5,16 @@
 /* EXTERNAL DEPENDENCIES
  * ▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼▼ */
 
+#include <sys/types.h>	/* ssize_t, chmod API, LINUX compatibility */
+
 #ifdef WIN32
 #	include <windows.h>	/* DeviceIoControl */
-#	include <winsock2.h>	/* socket */
+#	include <winsock2.h>	/* socket, bind, listen, connect, accept */
 #	include <iphlpapi.h>	/* GetAdaptersAddress */
 #	include <ws2tcpip.h>	/* getaddrinfo */
 #else
 #	include <sys/ioctl.h>	/* iotcl */
-#	include <sys/types.h>	/* LINUX compatibility */
-#	include <sys/socket.h>	/* socket */
+#	include <sys/socket.h>	/* socket, bind, listen, connect, accept */
 #	include <net/if.h>	/* ifreq, ifconf */
 #	include <netdb.h>	/* getaddrinfo */
 #endif /* ifdef WIN32 */
@@ -24,7 +25,6 @@
 
 #include <signal.h>		/* sig_t, signal, raise */
 #include <sys/uio.h>		/* read, write */
-#include <sys/types.h>		/* ssize_t, chmod API */
 #include <sys/stat.h>		/* mkdir */
 #include <sys/param.h>		/* MAXPATHLEN */
 #include "utils/fail_switch.h"	/* stdbool, errno, FAIL_SWITCH */
@@ -568,6 +568,169 @@ connect_report(const int socket_descriptor,
 				 "A component of the path prefix is not a directory.")
 	FAIL_SWITCH_ERRNO_CLOSE()
 }
+
+inline void
+connect_handle(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address,
+	       Handler *const handle,
+	       void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(connect_report(socket_descriptor,
+				  address,
+				  length_address,
+				  &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+connect_handle_cl(const int socket_descriptor,
+		  const struct sockaddr *const restrict address,
+		  const socklen_t length_address,
+		  const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(connect_report(socket_descriptor,
+				  address,
+				  length_address,
+				  &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
+
+/* accept */
+inline bool
+accept_status(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address)
+{
+	*connect_descriptor = accept(socket_descriptor,
+				     address,
+				     length_address);
+
+	return *connect_descriptor >= 0;
+}
+
+inline void
+accept_muffle(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address)
+{
+	*connect_descriptor = accept(socket_descriptor,
+				     address,
+				     length_address);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE accept
+inline bool
+accept_report(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address,
+	      const char *restrict *const restrict failure)
+{
+	*connect_descriptor = accept(socket_descriptor,
+				     address,
+				     length_address);
+
+	if (LIKELY(*connect_descriptor >= 0))
+		return true;
+
+	switch (errno) {
+	FAIL_SWITCH_ERRNO_CASE_1(EBADF,
+				 "'socket_descriptor' is not a valid file "
+				 "descriptor.")
+	FAIL_SWITCH_ERRNO_CASE_1(ECONNABORTED,
+				 "The connection to 'socket_descriptor' has "
+				 "been aborted.")
+	FAIL_SWITCH_ERRNO_CASE_1(EFAULT,
+				 "The address parameter is not in a writable "
+				 "part of the user address space.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINTR,
+				 "The accept() system call was terminated by a "
+				 "signal.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINVAL,
+				 "'socket_descriptor' is unwilling to accept "
+				 "connections.")
+	FAIL_SWITCH_ERRNO_CASE_2(EMFILE,
+				 "The per-process descriptor table is full.",
+				 "The system file table is full.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOMEM,
+				 "Insufficient memory was available to complete"
+				 " the operation.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTSOCK,
+				 "'socket_descriptor' references a file type "
+				 "other than a socket.")
+	FAIL_SWITCH_ERRNO_CASE_1(EOPNOTSUPP,
+				 "'socket_descriptor' is not of type '"
+				 "SOCK_STREAM' and thus does not accept "
+				 "connections.")
+	FAIL_SWITCH_ERRNO_CASE_1(EWOULDBLOCK,
+				 "'socket_descriptor' is marked as non-blocking"
+				 "and no connections are present to be accepted"
+				 ".")
+	FAIL_SWITCH_ERRNO_DEFAULT_CASE()
+	}
+}
+
+inline void
+accept_handle(int *const restrict connect_descriptor,
+	      const int socket_descriptor,
+	      struct sockaddr *const restrict address,
+	      socklen_t *const restrict length_address,
+	      Handler *const handle,
+	      void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(accept_report(connect_descriptor,
+				 socket_descriptor,
+				 address,
+				 length_address,
+				 &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+accept_handle_cl(int *const restrict connect_descriptor,
+		 const int socket_descriptor,
+		 struct sockaddr *const restrict address,
+		 socklen_t *const restrict length_address,
+		 const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(accept_report(connect_descriptor,
+				 socket_descriptor,
+				 address,
+				 length_address,
+				 &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
+
 
 
 #ifdef WIN32
