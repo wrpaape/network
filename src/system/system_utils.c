@@ -35,27 +35,48 @@ socket_handle_cl(int *const restrict socket_descriptor,
 extern inline bool
 bind_status(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len);
+	    const socklen_t length_address);
 extern inline void
 bind_muffle(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len);
+	    const socklen_t length_address);
 extern inline bool
 bind_report(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len,
+	    const socklen_t length_address,
 	    const char *restrict *const restrict failure);
 extern inline void
 bind_handle(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len,
+	    const socklen_t length_address,
 	    Handler *const handle,
 	    void *arg);
 extern inline void
 bind_handle_cl(const int socket_descriptor,
 	       const struct sockaddr *const restrict address,
-	       const socklen_t address_len,
+	       const socklen_t length_address,
 	       const struct HandlerClosure *const restrict fail_cl);
+
+/* listen */
+extern inline bool
+listen_status(const int socket_descriptor,
+	      const int backlog);
+extern inline void
+listen_muffle(const int socket_descriptor,
+	      const int backlog);
+extern inline bool
+listen_report(const int socket_descriptor,
+	      const int backlog,
+	      const char *restrict *const restrict failure);
+extern inline void
+listen_handle(const int socket_descriptor,
+	      const int backlog,
+	      Handler *const handle,
+	      void *arg);
+extern inline void
+listen_handle_cl(const int socket_descriptor,
+		 const int backlog,
+		 const struct HandlerClosure *const restrict fail_cl);
 
 #ifdef WIN32
 /* size_adapters_addresses */

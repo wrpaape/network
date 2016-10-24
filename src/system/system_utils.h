@@ -237,21 +237,21 @@ socket_handle_cl(int *const restrict socket_descriptor,
 inline bool
 bind_status(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len)
+	    const socklen_t length_address)
 {
 	return bind(socket_descriptor,
 		    address,
-		    address_len) == 0;
+		    length_address) == 0;
 }
 
 inline void
 bind_muffle(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len)
+	    const socklen_t length_address)
 {
 	(void) bind(socket_descriptor,
 		    address,
-		    address_len);
+		    length_address);
 }
 
 #undef	FAIL_SWITCH_ROUTINE
@@ -259,12 +259,12 @@ bind_muffle(const int socket_descriptor,
 inline bool
 bind_report(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len,
+	    const socklen_t length_address,
 	    const char *restrict *const restrict failure)
 {
 	FAIL_SWITCH_ERRNO_OPEN(socket_descriptor,
 			       address,
-			       address_len)
+			       length_address)
 	FAIL_SWITCH_ERRNO_CASE_2(EACCES,
 				 "The requested address is protected, and the "
 				 "current user has inadequate permission to "
@@ -330,7 +330,7 @@ bind_report(const int socket_descriptor,
 inline void
 bind_handle(const int socket_descriptor,
 	    const struct sockaddr *const restrict address,
-	    const socklen_t address_len,
+	    const socklen_t length_address,
 	    Handler *const handle,
 	    void *arg)
 {
@@ -338,7 +338,7 @@ bind_handle(const int socket_descriptor,
 
 	if (LIKELY(bind_report(socket_descriptor,
 			       address,
-			       address_len,
+			       length_address,
 			       &failure)))
 		return;
 
@@ -350,14 +350,14 @@ bind_handle(const int socket_descriptor,
 inline void
 bind_handle_cl(const int socket_descriptor,
 	       const struct sockaddr *const restrict address,
-	       const socklen_t address_len,
+	       const socklen_t length_address,
 	       const struct HandlerClosure *const restrict fail_cl)
 {
 	const char *restrict failure;
 
 	if (LIKELY(bind_report(socket_descriptor,
 			       address,
-			       address_len,
+			       length_address,
 			       &failure)))
 		return;
 
@@ -366,6 +366,208 @@ bind_handle_cl(const int socket_descriptor,
 	__builtin_unreachable();
 }
 
+
+/* listen */
+inline bool
+listen_status(const int socket_descriptor,
+	      const int backlog)
+{
+	return listen(socket_descriptor,
+		      backlog) == 0;
+}
+
+inline void
+listen_muffle(const int socket_descriptor,
+	      const int backlog)
+{
+	(void) listen(socket_descriptor,
+		      backlog);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define	FAIL_SWITCH_ROUTINE listen
+inline bool
+listen_report(const int socket_descriptor,
+	      const int backlog,
+	      const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(socket_descriptor,
+			       backlog)
+	FAIL_SWITCH_ERRNO_CASE_1(EACCES,
+				 "The current process has insufficient "
+				 "privileges.")
+	FAIL_SWITCH_ERRNO_CASE_1(EBADF,
+				 "The argument 'socket_descriptor' is not a "
+				 "valid file descriptor.")
+	FAIL_SWITCH_ERRNO_CASE_1(EDESTADDRREQ,
+				 "The socket is not bound to a local address "
+				 "and the protocol does not support listening "
+				 "on an unbound socket.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINVAL,
+				 "'socket_descriptor' is already connected.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTSOCK,
+				 "The argument 'socket_descriptor' does not "
+				 "reference a socket.")
+	FAIL_SWITCH_ERRNO_CASE_1(EOPNOTSUPP,
+				 "The socket is not of a type that supports the"
+				 " operation listen().")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+listen_handle(const int socket_descriptor,
+	      const int backlog,
+	      Handler *const handle,
+	      void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(listen_report(socket_descriptor,
+				 backlog,
+				 &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+listen_handle_cl(const int socket_descriptor,
+		 const int backlog,
+		 const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(listen_report(socket_descriptor,
+				 backlog,
+				 &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
+
+/* connect */
+inline bool
+connect_status(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address)
+{
+	return connect(socket_descriptor,
+		       address,
+		       length_address) == 0;
+}
+
+inline void
+connect_muffle(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address)
+{
+	(void) connect(socket_descriptor,
+		       address,
+		       length_address);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define	FAIL_SWITCH_ROUTINE connect
+inline bool
+connect_report(const int socket_descriptor,
+	       const struct sockaddr *const restrict address,
+	       const socklen_t length_address,
+	       const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(socket_descriptor,
+			       address,
+			       length_address)
+	FAIL_SWITCH_ERRNO_CASE_3(EACCES,
+				 "The destination address is a broadcast "
+				 "address and the socket option '"
+				 "SO_BROADCAST' is not set.",
+				 "Search permission is denied for a component "
+				 "of the path prefix.",
+				 "Write access to the named socket is denied.")
+	FAIL_SWITCH_ERRNO_CASE_1(EADDRINUSE,
+				 "The address is already in use.")
+	FAIL_SWITCH_ERRNO_CASE_1(EADDRNOTAVAIL,
+				 "The specified address is not available on "
+				 "this machine.")
+	FAIL_SWITCH_ERRNO_CASE_1(EAFNOSUPPORT,
+				 "Addresses in the specified address family "
+				 "cannot be used with this socket.")
+	FAIL_SWITCH_ERRNO_CASE_1(EALREADY,
+				 "The socket is non-blocking and a previous "
+				 "connection attempt has not yet been completed"
+				 ".")
+	FAIL_SWITCH_ERRNO_CASE_1(EBADF,
+				 "'socket_descriptor' is not a valid descriptor"
+				 ".")
+	FAIL_SWITCH_ERRNO_CASE_1(ECONNREFUSED,
+				 "The attempt to connect was ignored (because "
+				 "the target is not listening for connections) "
+				 "or explicitly rejected.")
+	FAIL_SWITCH_ERRNO_CASE_1(EFAULT,
+				 "The 'address' parameter specifies an area "
+				 "outside the process address space.")
+	FAIL_SWITCH_ERRNO_CASE_1(EHOSTUNREACH,
+				 "The target host cannot be reached (e.g., down"
+				 ", disconnected).")
+	FAIL_SWITCH_ERRNO_CASE_1(EINPROGRESS,
+				 "The socket is non-blocking and the connection"
+				 " cannot be completed immediately. It is "
+				 "possible to select(2) for completion by "
+				 "selecting the socket for writing.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINTR,
+				 "Its execution was interrupted by a signal.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINVAL,
+				 "An invalid argument was detected (e.g., '"
+				 "length_address' is not valid for the address "
+				 "family, the specified address family is "
+				 "invalid).")
+	FAIL_SWITCH_ERRNO_CASE_1(EISCONN,
+				 "The socket is already connected.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENETDOWN,
+				 "The local network interface is not "
+				 "functioning.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENETUNREACH,
+				 "The network isn't reachable from this host.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOBUFS,
+				 "The system call was unable to allocate a "
+				 "needed memory buffer.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTSOCK,
+				 "'socket_descriptor' is not a file descriptor "
+				 "for a socket.")
+	FAIL_SWITCH_ERRNO_CASE_1(EOPNOTSUPP,
+				 "Because 'socket_descriptor' is listening, no "
+				 "connection is allowed.")
+	FAIL_SWITCH_ERRNO_CASE_1(EPROTOTYPE,
+				 "'address' has a different type than the "
+				 "socket that is bound to the specified peer "
+				 "address.")
+	FAIL_SWITCH_ERRNO_CASE_1(ETIMEDOUT,
+				 "Connection establishment timed out without "
+				 "establishing a connection.")
+	FAIL_SWITCH_ERRNO_CASE_1(ECONNRESET,
+				 "Remote host reset the connection request.")
+	FAIL_SWITCH_ERRNO_CASE_1(EIO,
+				 "An I/O error occurred while reading from or "
+				 "writing to the file system.")
+	FAIL_SWITCH_ERRNO_CASE_1(ELOOP,
+				 "Too many symbolic links were encountered in "
+				 "translating the pathname. This is taken to be"
+				 " indicative of a looping symbolic link.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENAMETOOLONG,
+				 "A component of a pathname exceeded {NAME_MAX}"
+				 " characters, or an entire path name exceeded "
+				 "{PATH_MAX} characters.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOENT,
+				 "The named socket does not exist.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTDIR,
+				 "A component of the path prefix is not a directory.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
 
 
 #ifdef WIN32
