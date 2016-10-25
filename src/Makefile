@@ -974,4 +974,3 @@ $(IS_LITTLE_ENDIAN_BIN): $(IS_LITTLE_ENDIAN_BIN_PREQS)
 # ──────────────────────────────────────────────────────────────────────────────
 $(IS_LITTLE_ENDIAN_OBJ): $(IS_LITTLE_ENDIAN_OBJ_PREQS)
 	$(CC) $(CC_FLAGS) -c $< -o $@
-
