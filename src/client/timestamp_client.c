@@ -11,12 +11,13 @@ int
 main(void)
 {
 	int socket_descriptor;
-	static char timestamp[SIZE_TIMESTAMP_STRING + 1];	/* \n */
-	static char *restrict buffer = &timestamp[0];
-	size_t rem_size;
-	static struct sockaddr_in server_address;
-	const char *restrict failure;
 	size_t size_read;
+	const char *restrict failure;
+
+	static struct sockaddr_in server_address;
+	static char buffer[SIZE_TIMESTAMP_STRING + 1];	/* \n */
+	static char *restrict rem_buffer = &buffer[0];
+	static size_t rem_size		 = SIZE_TIMESTAMP_STRING;
 
 
 	if (!socket_report(&socket_descriptor,
@@ -41,12 +42,10 @@ main(void)
 			    &failure))
 		exit_failure_print_message(failure);
 
-	rem_size = SIZE_TIMESTAMP_STRING;
-
 	while (1) {
 		if (!read_size_report(&size_read,
 				      socket_descriptor,
-				      buffer,
+				      rem_buffer,
 				      rem_size,
 				      &failure))
 			exit_failure_print_message(failure);
@@ -54,17 +53,17 @@ main(void)
 		if (size_read == 0)
 			break;
 
-		buffer	 += size_read;
-		rem_size -= size_read;
+		rem_buffer  += size_read;
+		rem_size    -= size_read;
 	}
 
-	*buffer = '\n';
+	*rem_buffer = '\n';
 
 	if (!(   close_report(socket_descriptor,
 			      &failure)
 	      && write_report(STDOUT_FILENO,
-			      &timestamp[0],
-			      sizeof(timestamp),
+			      &buffer[0],
+			      sizeof(buffer),
 			      &failure)))
 	    exit_failure_print_message(failure);
 

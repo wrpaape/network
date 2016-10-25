@@ -751,6 +751,24 @@ IS_LITTLE_ENDIAN_OBJ_PREQS	:= $(IS_LITTLE_ENDIAN_SRC)
 TARGETS				+= $(IS_LITTLE_ENDIAN_OBJ)	\
 				   $(IS_LITTLE_ENDIAN_BIN)
 
+
+# timestamp_server
+# ──────────────────────────────────────────────────────────────────────────────
+TIMESTAMP_SERVER_SRC 		:= $(call HELPER_SOURCE_PATH,server timestamp_server)
+TIMESTAMP_SERVER_OBJ		:= $(call HELPER_OBJECT_PATH,server timestamp_server)
+TIMESTAMP_SERVER_BIN		:= $(call BINARY_PATH,timestamp_server)
+# ─────────────── target prequisites ───────────────────────────────────────────
+TIMESTAMP_SERVER_BIN_PREQS	:= $(TIMESTAMP_SERVER_OBJ)		\
+				   $(TIME_TIME_STRING_OBJ_GROUP)	\
+				   $(NETWORK_NETWORK_UTILS_OBJ_GROUP)
+TIMESTAMP_SERVER_OBJ_PREQS	:= $(TIMESTAMP_SERVER_SRC)		\
+				   $(TIME_TIME_STRING_HDR)		\
+				   $(NETWORK_NETWORK_UTILS_HDR)		\
+				   $(IS_LITTLE_ENDIAN_BIN)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(TIMESTAMP_SERVER_OBJ)		\
+				   $(TIMESTAMP_SERVER_BIN)
+
 # timestamp_client
 # ──────────────────────────────────────────────────────────────────────────────
 TIMESTAMP_CLIENT_SRC 		:= $(call HELPER_SOURCE_PATH,client timestamp_client)
@@ -758,8 +776,10 @@ TIMESTAMP_CLIENT_OBJ		:= $(call HELPER_OBJECT_PATH,client timestamp_client)
 TIMESTAMP_CLIENT_BIN		:= $(call BINARY_PATH,timestamp_client)
 # ─────────────── target prequisites ───────────────────────────────────────────
 TIMESTAMP_CLIENT_BIN_PREQS	:= $(TIMESTAMP_CLIENT_OBJ)		\
+				   $(TIME_TIME_STRING_OBJ_GROUP)	\
 				   $(NETWORK_NETWORK_UTILS_OBJ_GROUP)
 TIMESTAMP_CLIENT_OBJ_PREQS	:= $(TIMESTAMP_CLIENT_SRC)		\
+				   $(TIME_TIME_STRING_HDR)		\
 				   $(NETWORK_NETWORK_UTILS_HDR)		\
 				   $(IS_LITTLE_ENDIAN_BIN)
 # ─────────────── targets ──────────────────────────────────────────────────────
@@ -798,6 +818,16 @@ $(TIMESTAMP_CLIENT_BIN): $(TIMESTAMP_CLIENT_BIN_PREQS)
 # make client/timestamp_client object
 # ──────────────────────────────────────────────────────────────────────────────
 $(TIMESTAMP_CLIENT_OBJ): $(TIMESTAMP_CLIENT_OBJ_PREQS) is_little_endian
+	$(CC) $(CC_FLAGS) -DIS_LITTLE_ENDIAN=$(IS_LITTLE_ENDIAN) -c $< -o $@
+
+# make server/timestamp_server binary
+# ──────────────────────────────────────────────────────────────────────────────
+$(TIMESTAMP_SERVER_BIN): $(TIMESTAMP_SERVER_BIN_PREQS)
+	$(LD) $(LD_FLAGS) $^ $(LD_LIB_FLAGS) -o $@
+
+# make server/timestamp_server object
+# ──────────────────────────────────────────────────────────────────────────────
+$(TIMESTAMP_SERVER_OBJ): $(TIMESTAMP_SERVER_OBJ_PREQS) is_little_endian
 	$(CC) $(CC_FLAGS) -DIS_LITTLE_ENDIAN=$(IS_LITTLE_ENDIAN) -c $< -o $@
 
 # make network/network_utils object
