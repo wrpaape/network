@@ -632,6 +632,193 @@ accept_handle_cl(int *const restrict connect_descriptor,
 }
 
 
+/* getsockname */
+inline bool
+getsockname_status(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address)
+{
+	return getsockname(socket_descriptor,
+			   address,
+			   length_address) == 0;
+}
+
+inline void
+getsockname_muffle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address)
+{
+	(void) getsockname(socket_descriptor,
+			   address,
+			   length_address);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE getsockname
+inline bool
+getsockname_report(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(socket_descriptor,
+			       address,
+			       length_address)
+	FAIL_SWITCH_ERRNO_CASE_1(EBADF,
+				 "The argument 'socket_descriptor' is not a "
+				 "valid file descriptor.")
+	FAIL_SWITCH_ERRNO_CASE_1(EFAULT,
+				 "The address parameter points to memory not in"
+				 " a valid part of the process address space.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINVAL,
+				 "'socket_descriptor' has been shut down.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOBUFS,
+				 "Insufficient resources were available in the "
+				 "system to perform the operation.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTSOCK,
+				 "The argument 'socket_descriptor' is not a "
+				 "socket (e.g., a plain file).")
+	FAIL_SWITCH_ERRNO_CASE_1(EOPNOTSUPP,
+				 "getsockname() is not supported for the "
+				 "protocol in use by 'socket_descriptor'.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+getsockname_handle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   Handler *const handle,
+		   void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(getsockname_report(socket_descriptor,
+				      address,
+				      length_address,
+				      &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+getsockname_handle_cl(const int socket_descriptor,
+		      struct sockaddr *const restrict address,
+		      socklen_t *const restrict length_address,
+		      const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(getsockname_report(socket_descriptor,
+				      address,
+				      length_address,
+				      &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
+
+/* getpeername */
+inline bool
+getpeername_status(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address)
+{
+	return getpeername(socket_descriptor,
+			   address,
+			   length_address) == 0;
+}
+
+inline void
+getpeername_muffle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address)
+{
+	(void) getpeername(socket_descriptor,
+			   address,
+			   length_address);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE getpeername
+inline bool
+getpeername_report(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(socket_descriptor,
+			       address,
+			       length_address)
+	FAIL_SWITCH_ERRNO_CASE_1(EBADF,
+				 "The argument 'socket_descriptor' is not a "
+				 "valid file descriptor.")
+	FAIL_SWITCH_ERRNO_CASE_1(EFAULT,
+				 "The address parameter points to memory not in"
+				 " a valid part of the process address space.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINVAL,
+				 "'socket_descriptor' has been shut down.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOBUFS,
+				 "Insufficient resources were available in the "
+				 "system to perform the operation.")
+	FAIL_SWITCH_ERRNO_CASE_2(ENOTCONN,
+				 "the socket is not connected",
+				 "the socket has not had the peer pre-specified"
+				 ".")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTSOCK,
+				 "The argument 'socket_descriptor' is not a "
+				 "socket (e.g., a plain file).")
+	FAIL_SWITCH_ERRNO_CASE_1(EOPNOTSUPP,
+				 "getpeername() is not supported for the "
+				 "protocol in use by 'socket_descriptor'.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+getpeername_handle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   Handler *const handle,
+		   void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(getpeername_report(socket_descriptor,
+				      address,
+				      length_address,
+				      &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+getpeername_handle_cl(const int socket_descriptor,
+		      struct sockaddr *const restrict address,
+		      socklen_t *const restrict length_address,
+		      const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(getpeername_report(socket_descriptor,
+				      address,
+				      length_address,
+				      &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
 /* undefine FAIL_SWITCH macro constants */
 #undef FAIL_SWITCH_ROUTINE
 #undef FAIL_SWITCH_ERRNO_FAILURE

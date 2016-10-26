@@ -134,3 +134,55 @@ accept_handle_cl(int *const restrict connect_descriptor,
 		 struct sockaddr *const restrict address,
 		 socklen_t *const restrict length_address,
 		 const struct HandlerClosure *const restrict fail_cl);
+
+/* getsockname */
+extern inline bool
+getsockname_status(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address);
+extern inline void
+getsockname_muffle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address);
+extern inline bool
+getsockname_report(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   const char *restrict *const restrict failure);
+extern inline void
+getsockname_handle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   Handler *const handle,
+		   void *arg);
+extern inline void
+getsockname_handle_cl(const int socket_descriptor,
+		      struct sockaddr *const restrict address,
+		      socklen_t *const restrict length_address,
+		      const struct HandlerClosure *const restrict fail_cl);
+
+/* getpeername */
+extern inline bool
+getpeername_status(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address);
+extern inline void
+getpeername_muffle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address);
+extern inline bool
+getpeername_report(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   const char *restrict *const restrict failure);
+extern inline void
+getpeername_handle(const int socket_descriptor,
+		   struct sockaddr *const restrict address,
+		   socklen_t *const restrict length_address,
+		   Handler *const handle,
+		   void *arg);
+extern inline void
+getpeername_handle_cl(const int socket_descriptor,
+		      struct sockaddr *const restrict address,
+		      socklen_t *const restrict length_address,
+		      const struct HandlerClosure *const restrict fail_cl);
