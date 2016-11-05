@@ -13,9 +13,13 @@
 #if IS_LITTLE_ENDIAN
 #	define NETWORK_SHORT(SHORT) __builtin_bswap16(SHORT)
 #	define NETWORK_LONG(LONG)   __builtin_bswap32(LONG)
+#	define HOST_SHORT(SHORT)    NETWORK_SHORT(SHORT)
+#	define HOST_LONG(LONG)      NETWORK_LONG(LONG)
 #else
 #	define NETWORK_SHORT(SHORT) SHORT
 #	define NETWORK_LONG(LONG)   LONG
+#	define HOST_SHORT(SHORT)    SHORT
+#	define HOST_LONG(LONG)      LONG
 #endif /* if IS_LITTLE_ENDIAN */
 
 #define FAIL_SWITCH_ERRNO_FAILURE	-1
