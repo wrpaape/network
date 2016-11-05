@@ -80,7 +80,6 @@ socket_report(int *const restrict socket_descriptor,
 	FAIL_SWITCH_ERRNO_CASE_1(ENOMEM,
 				 "Insufficient memory was available to fulfill "
 				 "the request.")
-
 	FAIL_SWITCH_ERRNO_CASE_1(EPROTONOSUPPORT,
 				 "The protocol type or the specified protocol "
 				 "is not supported within this domain.")
@@ -818,6 +817,193 @@ getpeername_handle_cl(const int socket_descriptor,
 			     failure);
 	__builtin_unreachable();
 }
+
+
+/* inet_pton */
+inline bool
+inet_pton_status(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address)
+{
+	return inet_pton(address_family,
+			 presentation_format_address,
+			 network_format_address) == 1;
+}
+
+inline void
+inet_pton_muffle(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address)
+{
+	(void) inet_pton(address_family,
+			 presentation_format_address,
+			 network_format_address);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE inet_pton
+inline bool
+inet_pton_report(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address,
+		 const char *restrict *const restrict failure)
+{
+	const int status = inet_pton(address_family,
+				     presentation_format_address,
+				     network_format_address);
+
+	if (LIKELY(status == 1))
+		return true;
+
+	if (status == 0) {
+		*failure = FAILURE_REASON("inet_pton",
+					  "'presentation_format_address' was "
+					  "not paresable for the specified "
+					  "address family, 'address_family'.");
+		return false;
+	}
+
+	switch (errno) {
+	FAIL_SWITCH_ERRNO_CASE_1(EAFNOSUPPORT,
+				 "'address_family' does not conatin a valid "
+				 "address family.")
+	FAIL_SWITCH_ERRNO_DEFAULT_CASE()
+	}
+}
+
+inline void
+inet_pton_handle(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address,
+		 Handler *const handle,
+		 void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(inet_pton_report(address_family,
+				    presentation_format_address,
+				    network_format_address,
+				    &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+inet_pton_handle_cl(const int address_family,
+		    const char *const restrict presentation_format_address,
+		    void *const restrict network_format_address,
+		    const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(inet_pton_report(address_family,
+				    presentation_format_address,
+				    network_format_address,
+				    &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
+
+/* inet_ntop */
+inline bool
+inet_ntop_status(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer)
+{
+	return inet_ntop(address_family,
+			 network_format_address,
+			 presentation_format_address,
+			 size_buffer) != NULL;
+}
+
+inline void
+inet_ntop_muffle(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer)
+{
+	(void) inet_ntop(address_family,
+			 network_format_address,
+			 presentation_format_address,
+			 size_buffer);
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#undef	FAIL_SWITCH_ERRNO_FAILURE
+#define FAIL_SWITCH_ROUTINE		inet_ntop
+#define	FAIL_SWITCH_ERRNO_FAILURE	NULL
+inline bool
+inet_ntop_report(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer,
+		 const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(address_family,
+			       network_format_address,
+			       presentation_format_address,
+			       size_buffer)
+	FAIL_SWITCH_ERRNO_CASE_1(EAFNOSUPPORT,
+				 "'network_format_address' was not an 'AF_INET'"
+				 " or 'AF_INET6' family address.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOSPC,
+				 "'size_buffer' was not large enough to store "
+				 "the presentation form of the address, '"
+				 "presentation_format_address'.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+inet_ntop_handle(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer,
+		 Handler *const handle,
+		 void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(inet_ntop_report(address_family,
+				    network_format_address,
+				    presentation_format_address,
+				    size_buffer,
+				    &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+inet_ntop_handle_cl(const int address_family,
+		    const void *const restrict network_format_address,
+		    char *const restrict presentation_format_address,
+		    const socklen_t size_buffer,
+		    const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(inet_ntop_report(address_family,
+				    network_format_address,
+				    presentation_format_address,
+				    size_buffer,
+				    &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
 
 /* undefine FAIL_SWITCH macro constants */
 #undef FAIL_SWITCH_ROUTINE

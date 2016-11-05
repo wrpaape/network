@@ -186,3 +186,60 @@ getpeername_handle_cl(const int socket_descriptor,
 		      struct sockaddr *const restrict address,
 		      socklen_t *const restrict length_address,
 		      const struct HandlerClosure *const restrict fail_cl);
+
+/* inet_pton */
+extern inline bool
+inet_pton_status(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address);
+extern inline void
+inet_pton_muffle(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address);
+extern inline bool
+inet_pton_report(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address,
+		 const char *restrict *const restrict failure);
+extern inline void
+inet_pton_handle(const int address_family,
+		 const char *const restrict presentation_format_address,
+		 void *const restrict network_format_address,
+		 Handler *const handle,
+		 void *arg);
+extern inline void
+inet_pton_handle_cl(const int address_family,
+		    const char *const restrict presentation_format_address,
+		    void *const restrict network_format_address,
+		    const struct HandlerClosure *const restrict fail_cl);
+
+/* inet_ntop */
+extern inline bool
+inet_ntop_status(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer);
+extern inline void
+inet_ntop_muffle(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer);
+extern inline bool
+inet_ntop_report(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer,
+		 const char *restrict *const restrict failure);
+extern inline void
+inet_ntop_handle(const int address_family,
+		 const void *const restrict network_format_address,
+		 char *const restrict presentation_format_address,
+		 const socklen_t size_buffer,
+		 Handler *const handle,
+		 void *arg);
+extern inline void
+inet_ntop_handle_cl(const int address_family,
+		    const void *const restrict network_format_address,
+		    char *const restrict presentation_format_address,
+		    const socklen_t size_buffer,
+		    const struct HandlerClosure *const restrict fail_cl);
