@@ -127,6 +127,8 @@ main(void)
 
 
 	while (1) {
+		length_client_address = sizeof(client_address);
+
 		if (!(   accept_report(&connect_descriptor,
 				       socket_descriptor,
 				       (struct sockaddr *) &client_address,

@@ -1322,6 +1322,76 @@ raise_handle_cl(const int signal_name,
 }
 
 
+
+#ifndef WIN32
+/* fork */
+inline bool
+fork_status(pid_t *const restrict process_id)
+{
+	*process_id = fork();
+	return *process_id >= 0;
+}
+
+inline void
+fork_muffle(pid_t *const restrict process_id)
+{
+	*process_id = fork();
+}
+
+#undef	FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE fork
+inline bool
+fork_report(pid_t *const restrict process_id,
+	    const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN()
+	FAIL_SWITCH_ERRNO_CASE_2(EAGAIN,
+				 "The system-imposed limit on the total number "
+				 "of processes under execution would be "
+				 "exceeded. This limit is configuration-"
+				 "dependent.",
+				 "The system-imposed limit 'MAXUPRC' (<sys/"
+				 "param.h>) on the total number of processes "
+				 "under execution by a single user would be "
+				 "exceeded.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOMEM,
+				 "There is insufficient swap space for the new "
+				 "process.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+fork_handle(pid_t *const restrict process_id,
+	    Handler *const handle,
+	    void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(fork_report(process_id,
+			       &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+fork_handle_cl(pid_t *const restrict process_id,
+	       const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(fork_report(process_id,
+			       &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+#endif /* ifndef WIN32 */
+
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲
  * TOP-LEVEL FUNCTIONS */
 

@@ -318,3 +318,21 @@ raise_handle(const int signal_name,
 extern inline void
 raise_handle_cl(const int signal_name,
 		const struct HandlerClosure *const restrict fail_cl);
+
+#ifndef WIN32
+/* fork */
+extern inline bool
+fork_status(pid_t *const restrict process_id);
+extern inline void
+fork_muffle(pid_t *const restrict process_id);
+extern inline bool
+fork_report(pid_t *const restrict process_id,
+	    const char *restrict *const restrict failure);
+extern inline void
+fork_handle(pid_t *const restrict process_id,
+	    Handler *const handle,
+	    void *arg);
+extern inline void
+fork_handle_cl(pid_t *const restrict process_id,
+	       const struct HandlerClosure *const restrict fail_cl);
+#endif /* ifndef WIN32 */
