@@ -655,6 +655,22 @@ pipe_handle(int file_descriptors[2],
 extern inline void
 pipe_handle_cl(int file_descriptors[2],
 	       const struct HandlerClosure *const restrict fail_cl);
+
+/* close on exec */
+extern inline bool
+close_on_exec_status(const int file_descriptor);
+extern inline void
+close_on_exec_muffle(const int file_descriptor);
+extern inline bool
+close_on_exec_report(const int file_descriptor,
+		     const char *restrict *const restrict failure);
+extern inline void
+close_on_exec_handle(const int file_descriptor,
+		     Handler *const handle,
+		     void *arg);
+extern inline void
+close_on_exec_handle_cl(const int file_descriptor,
+			const struct HandlerClosure *const restrict fail_cl);
 #endif /* ifdef WIN32 */
 
 

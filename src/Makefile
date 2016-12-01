@@ -30,6 +30,12 @@ define NEWLINE :=
 
 endef
 
+SENDMAIL_PATH := $(shell which sendmail)
+
+ifeq ($(EMPTY),$(SENDMAIL_PATH))
+        $(error failed to find 'sendmail')
+endif
+
 # SYSTEM CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
 # extended from user 'Trevor Robinson''s response to stackoverflow question:

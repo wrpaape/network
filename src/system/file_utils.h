@@ -1210,11 +1210,6 @@ dup2_report(const int old_file_descriptor,
 {
 	FAIL_SWITCH_ERRNO_OPEN(old_file_descriptor,
 			       new_file_descriptor)
-	FAIL_SWITCH_ERRNO_CASE_2(EBADF,
-				 "'old_file_descriptor' is not an active, valid"
-				 " file descriptor.",
-				 "'new_file_descriptor' is negative or greater "
-				 "than the maximum allowable number.")
 	FAIL_SWITCH_ERRNO_CASE_1(EINTR,
 				 "Execution is interrupted by a signal.")
 	FAIL_SWITCH_ERRNO_CASE_1(EMFILE,
@@ -3514,6 +3509,69 @@ pipe_handle_cl(int file_descriptors[2],
 			     failure);
 	__builtin_unreachable();
 }
+
+/* close on exec */
+#define CLOSE_ON_EXEC(FILE_DESCRIPTOR)					\
+	fcntl(FILE_DESCRIPTOR,						\
+	      F_SETFD,							\
+	      FD_CLOEXEC)
+inline bool
+close_on_exec_status(const int file_descriptor)
+{
+	return CLOSE_ON_EXEC(file_descriptor) != -1;
+}
+
+inline void
+close_on_exec_muffle(const int file_descriptor)
+{
+	(void) CLOSE_ON_EXEC(file_descriptor);
+}
+
+#undef  FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE CLOSE_ON_EXEC
+inline bool
+close_on_exec_report(const int file_descriptor,
+		     const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(file_descriptor)
+	FAIL_SWITCH_ERRNO_CASE_1(EBADF,
+				 "file_descriptor is not a valid open file "
+				 "descriptor.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+close_on_exec_handle(const int file_descriptor,
+		     Handler *const handle,
+		     void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(close_on_exec_report(file_descriptor,
+					&failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+close_on_exec_handle_cl(const int file_descriptor,
+			const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(close_on_exec_report(file_descriptor,
+					&failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+#undef CLOSE_ON_EXEC
+
 #endif /* ifdef WIN32 */
 
 
