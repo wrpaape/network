@@ -1396,6 +1396,115 @@ fork_handle_cl(pid_t *const restrict process_id,
 			     failure);
 	__builtin_unreachable();
 }
+
+
+/* execve */
+#undef	FAIL_SWITCH_FAILURE_RETURN
+#define FAIL_SWITCH_FAILURE_RETURN
+inline void
+execve_report(const char *restrict path,
+	      char *const argv[],
+	      char *const envp[],
+	      const char *restrict *const restrict failure)
+{
+	(void) execve(path,
+		      argv,
+		      envp);
+
+	switch (errno) {
+	FAIL_SWITCH_ERRNO_CASE_1(E2BIG,
+				 "The number of bytes in the new process's "
+				 "argument list is larger than the system-"
+				 "imposed limit. This limit is specified by the"
+				 " sysctl(3) MIB variable 'KERN_ARGMAX'.")
+	FAIL_SWITCH_ERRNO_CASE_4(EACCES,
+				 "Search permission is denied for a component "
+				 "of the path prefix.",
+				 "The new process file is not an ordinary file"
+				 ".",
+				 "The new process file mode denies execute "
+				 "permission.",
+				 "The new process file is on a filesystem "
+				 "mounted with execution disabled (MNT_NOEXEC "
+				 "in <sys/mount.h>).")
+	FAIL_SWITCH_ERRNO_CASE_2(EFAULT,
+				 "The new process file is not as long as "
+				 "indicated by the size values in its header.",
+				 "Path, argv, or envp point to an illegal "
+				 "address.")
+	FAIL_SWITCH_ERRNO_CASE_1(EIO,
+				 "An I/O error occurred while reading from the "
+				 "file system.")
+	FAIL_SWITCH_ERRNO_CASE_1(ELOOP,
+				 "Too many symbolic links were encountered in "
+				 "translating the pathname. This is taken to be"
+				 " indicative of a looping symbolic link.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENAMETOOLONG,
+				 "A component of a pathname exceeded {NAME_MAX}"
+				 " characters, or an entire path name exceeded "
+				 "{PATH_MAX} characters.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOENT,
+				 "The new process file does not exist.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOEXEC,
+				 "The new process file has the appropriate "
+				 "access permission, but has an unrecognized "
+				 "format (e.g., an invalid magic number in its "
+				 "header).")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOMEM,
+				 "The new process requires more virtual memory "
+				 "than is allowed by the imposed maximum ("
+				 "getrlimit(2)).")
+	FAIL_SWITCH_ERRNO_CASE_1(ENOTDIR,
+				 "A component of the path prefix is not a "
+				 "directory.")
+	FAIL_SWITCH_ERRNO_CASE_1(ETXTBSY,
+				 "The new process file is a pure procedure ("
+				 "shared text) file that is currently open for "
+				 "writing or reading by some process.")
+	FAIL_SWITCH_ERRNO_DEFAULT_CASE()
+	}
+}
+#undef	FAIL_SWITCH_FAILURE_RETURN
+#define FAIL_SWITCH_FAILURE_RETURN false
+
+inline void
+execve_handle(const char *restrict path,
+	      char *const argv[],
+	      char *const envp[],
+	      Handler *const handle,
+	      void *arg)
+{
+	const char *restrict failure;
+
+	execve_report(path,
+		      argv,
+		      envp,
+		      &failure);
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+execve_handle_cl(const char *restrict path,
+		 char *const argv[],
+		 char *const envp[],
+		 const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	execve_report(path,
+		      argv,
+		      envp,
+		      &failure);
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
+
+
 #endif /* ifndef WIN32 */
 
 /* ▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲▲

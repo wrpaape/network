@@ -335,4 +335,22 @@ fork_handle(pid_t *const restrict process_id,
 extern inline void
 fork_handle_cl(pid_t *const restrict process_id,
 	       const struct HandlerClosure *const restrict fail_cl);
+
+/* execve */
+extern inline void
+execve_report(const char *restrict path,
+	      char *const argv[],
+	      char *const envp[],
+	      const char *restrict *const restrict failure);
+extern inline void
+execve_handle(const char *restrict path,
+	      char *const argv[],
+	      char *const envp[],
+	      Handler *const handle,
+	      void *arg);
+extern inline void
+execve_handle_cl(const char *restrict path,
+		 char *const argv[],
+		 char *const envp[],
+		 const struct HandlerClosure *const restrict fail_cl);
 #endif /* ifndef WIN32 */
