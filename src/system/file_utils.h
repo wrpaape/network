@@ -13,7 +13,6 @@
 #	include <fts.h>		/* file tree walk */
 #endif /* ifdef WIN32 */
 
-#include <unistd.h>		     /* close, getcwd, STDOUT/IN/ERR_FILENO */
 #include "utils/utils.h"	     /* FILE/stream API */
 #include "system/system_utils.h"     /* sys headers, FAIL_SWITCH, misc macros */
 #include "string/string_utils.h"     /* string_compare */
@@ -116,6 +115,15 @@
 #	undef open_relative_mode_imp
 #	warning "open_relative_mode undefined"
 
+/* duplicate a file */
+#	define dup_imp(FILE_DESCRIPTOR)					\
+	_dup(FILE_DESCRIPTOR)
+
+#	define dup2_imp(OLD_FILE_DESCRIPTOR,				\
+			NEW_FILE_DESCRIPTOR)				\
+	_dup2(OLD_FILE_DESCRIPTOR,					\
+	      NEW_FILE_DESCRIPTOR)
+
 /* read a file */
 #	define read_imp(FILE_DESCRIPTOR,				\
 			BUFFER,						\
@@ -205,6 +213,15 @@
 	       RELATIVE_PATH,						\
 	       OPEN_FLAG,						\
 	       MODE)
+
+/* duplicate a file */
+#	define dup_imp(FILE_DESCRIPTOR)					\
+	dup(FILE_DESCRIPTOR)
+
+#	define dup2_imp(OLD_FILE_DESCRIPTOR,				\
+			NEW_FILE_DESCRIPTOR)				\
+	dup2(OLD_FILE_DESCRIPTOR,					\
+	     NEW_FILE_DESCRIPTOR)
 
 /* read a file */
 #	define read_imp(FILE_DESCRIPTOR,				\
@@ -1165,6 +1182,80 @@ open_relative_mode_handle_cl(int *const restrict file_descriptor,
 	__builtin_unreachable();
 }
 #endif /* ifndef WIN32 */
+
+
+/* dup2 */
+inline bool
+dup2_status(const int old_file_descriptor,
+	    const int new_file_descriptor)
+{
+	return dup2_imp(old_file_descriptor,
+			new_file_descriptor) >= 0;
+}
+
+inline void
+dup2_muffle(const int old_file_descriptor,
+	    const int new_file_descriptor)
+{
+	(void) dup2_imp(old_file_descriptor,
+			new_file_descriptor);
+}
+
+#undef  FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE dup2_imp
+inline bool
+dup2_report(const int old_file_descriptor,
+	    const int new_file_descriptor,
+	    const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(old_file_descriptor,
+			       new_file_descriptor)
+	FAIL_SWITCH_ERRNO_CASE_2(EBADF,
+				 "'old_file_descriptor' is not an active, valid"
+				 " file descriptor.",
+				 "'new_file_descriptor' is negative or greater "
+				 "than the maximum allowable number.")
+	FAIL_SWITCH_ERRNO_CASE_1(EINTR,
+				 "Execution is interrupted by a signal.")
+	FAIL_SWITCH_ERRNO_CASE_1(EMFILE,
+				 "Too many file descriptors are active.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+dup2_handle(const int old_file_descriptor,
+	    const int new_file_descriptor,
+	    Handler *const handle,
+	    void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(dup2_report(old_file_descriptor,
+			       new_file_descriptor,
+			       &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+dup2_handle_cl(const int old_file_descriptor,
+	       const int new_file_descriptor,
+	       const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(dup2_report(old_file_descriptor,
+			       new_file_descriptor,
+			       &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
+}
 
 
 /* read */
@@ -3361,6 +3452,67 @@ ftsent_compare_names(const FTSENT **x,
 {
 	return string_compare((*x)->fts_name,
 			      (*y)->fts_name);
+}
+
+/* pipe */
+inline bool
+pipe_status(int file_descriptors[2])
+{
+	return pipe(file_descriptors) == 0;
+}
+
+inline void
+pipe_muffle(int file_descriptors[2])
+{
+	(void) pipe(file_descriptors);
+}
+
+#undef  FAIL_SWITCH_ROUTINE
+#define FAIL_SWITCH_ROUTINE pipe
+inline bool
+pipe_report(int file_descriptors[2],
+	    const char *restrict *const restrict failure)
+{
+	FAIL_SWITCH_ERRNO_OPEN(file_descriptors)
+	FAIL_SWITCH_ERRNO_CASE_1(EFAULT,
+				 "The 'file_descriptors' buffer is in an "
+				 "invalid area of the process's address space.")
+	FAIL_SWITCH_ERRNO_CASE_1(EMFILE,
+				 "Too many descriptors are active.")
+	FAIL_SWITCH_ERRNO_CASE_1(ENFILE,
+				 "The system file table is full.")
+	FAIL_SWITCH_ERRNO_CLOSE()
+}
+
+inline void
+pipe_handle(int file_descriptors[2],
+	    Handler *const handle,
+	    void *arg)
+{
+	const char *restrict failure;
+
+	if (LIKELY(pipe_report(file_descriptors,
+			       &failure)))
+		return;
+
+	handle(arg,
+	       failure);
+	__builtin_unreachable();
+}
+
+inline void
+pipe_handle_cl(int file_descriptors[2],
+	       const struct HandlerClosure *const restrict fail_cl)
+{
+	const char *restrict failure;
+
+	if (LIKELY(pipe_report(file_descriptors,
+			       &failure)))
+		return;
+
+	handler_closure_call(fail_cl,
+			     failure);
+	__builtin_unreachable();
 }
 #endif /* ifdef WIN32 */
 

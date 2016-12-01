@@ -28,6 +28,7 @@
 #include <sys/uio.h>		/* read, write */
 #include <sys/stat.h>		/* mkdir */
 #include <sys/param.h>		/* MAXPATHLEN */
+#include <unistd.h>		/* fork, close, getcwd, STDOUT/IN/ERR_FILENO */
 #include "utils/fail_switch.h"	/* stdbool, errno, FAIL_SWITCH */
 #include "utils/closure.h"	/* HandlerClosure */
 
@@ -1344,7 +1345,11 @@ inline bool
 fork_report(pid_t *const restrict process_id,
 	    const char *restrict *const restrict failure)
 {
-	FAIL_SWITCH_ERRNO_OPEN()
+	*process_id = fork();
+	if (LIKELY(*process_id >= 0))
+		return true;
+
+	switch (errno) {
 	FAIL_SWITCH_ERRNO_CASE_2(EAGAIN,
 				 "The system-imposed limit on the total number "
 				 "of processes under execution would be "
@@ -1357,7 +1362,8 @@ fork_report(pid_t *const restrict process_id,
 	FAIL_SWITCH_ERRNO_CASE_1(ENOMEM,
 				 "There is insufficient swap space for the new "
 				 "process.")
-	FAIL_SWITCH_ERRNO_CLOSE()
+	FAIL_SWITCH_ERRNO_DEFAULT_CASE()
+	}
 }
 
 inline void

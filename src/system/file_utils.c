@@ -147,6 +147,26 @@ open_relative_mode_handle_cl(int *const restrict file_descriptor,
 			     const struct HandlerClosure *const restrict fail_cl);
 #endif /* ifndef WIN32 */
 
+/* dup2 */
+extern inline bool
+dup2_status(const int old_file_descriptor,
+	    const int new_file_descriptor);
+extern inline void
+dup2_muffle(const int old_file_descriptor,
+	    const int new_file_descriptor);
+extern inline bool
+dup2_report(const int old_file_descriptor,
+	    const int new_file_descriptor,
+	    const char *restrict *const restrict failure);
+extern inline void
+dup2_handle(const int old_file_descriptor,
+	    const int new_file_descriptor,
+	    Handler *const handle,
+	    void *arg);
+extern inline void
+dup2_handle_cl(const int old_file_descriptor,
+	       const int new_file_descriptor,
+	       const struct HandlerClosure *const restrict fail_cl);
 
 /* read */
 extern inline bool
@@ -619,6 +639,22 @@ fts_set_handle_cl(FTS *const restrict tree,
 extern inline int
 ftsent_compare_names(const FTSENT **x,
 		     const FTSENT **y);
+
+/* pipe */
+extern inline bool
+pipe_status(int file_descriptors[2]);
+extern inline void
+pipe_muffle(int file_descriptors[2]);
+extern inline bool
+pipe_report(int file_descriptors[2],
+	    const char *restrict *const restrict failure);
+extern inline void
+pipe_handle(int file_descriptors[2],
+	    Handler *const handle,
+	    void *arg);
+extern inline void
+pipe_handle_cl(int file_descriptors[2],
+	       const struct HandlerClosure *const restrict fail_cl);
 #endif /* ifdef WIN32 */
 
 
