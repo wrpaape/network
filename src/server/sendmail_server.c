@@ -4,11 +4,23 @@
 #define SENDMAIL_PATH "usr/sbin/sendmail"
 #endif /* ifdef SENDMAIL_PATH */
 
+#define DO_DEBUG		1
 #define ANNOUNCE_CLIENT		1
 #define REQUEST_BUFFER_SIZE	2048
 #define SERVER_PORT		80
 #define LISTEN_QUEUE		128
 #define ACCESS_TOKEN		"dummy_access_token"
+
+
+#if DO_DEBUG
+#	define DEBUG(...)						\
+printf("(proccess: %d)\t",						\
+       (int) getpid());							\
+printf(__VA_ARGS__);							\
+fflush(stdout)
+#else
+#	define DEBUG(...)
+#endif /* if DO_DEBUG */
 
 struct KeyFinder {
 	const unsigned char *key;
@@ -137,7 +149,8 @@ if (found == NULL) {						\
 	return false;						\
 }								\
 key_init(&(KEY),						\
-	 found)
+	 found);						\
+DEBUG("found " #KEY ": \"%s\"\n", (KEY).bytes)
 
 static inline bool
 find_keys(unsigned char *const restrict text,
@@ -254,37 +267,65 @@ read_request(const int connect_descriptor,
 	     const char *restrict *const restrict failure)
 {
 	static unsigned char request_buffer[REQUEST_BUFFER_SIZE];
+	bool success;
 
-	size_t size_read;
-	size_t rem_size;
-	unsigned char *restrict rem_buffer;
+	DEBUG("read_request (reading)\n");
+	success = read_size_report(length_request,
+				   connect_descriptor,
+				   &request_buffer[0],
+				   sizeof(request_buffer),
+				   failure);
 
-	rem_buffer = &request_buffer[0];
-	rem_size   = sizeof(request_buffer);
+	if (success) {
+		DEBUG("got request:\n\"\"\"\n%.*s\n\"\"\"\n",
+		      (int) *length_request,
+		      &request_buffer[0]);
 
-	while (1) {
-		if (!read_size_report(&size_read,
-				      connect_descriptor,
-				      rem_buffer,
-				      rem_size,
-				      failure))
-			return false;
+		success = (*length_request < sizeof(request_buffer));
 
-
-		if (size_read == 0) {
-			*request	= &request_buffer[0];
-			*length_request = rem_buffer - &request_buffer[0];
-			return true;
-		}
-
-		if (size_read == rem_size) {
+		if (success)
+			*request = &request_buffer[0];
+		else
 			*failure = READ_REQUEST_FAILURE("buffer overflow");
-			return false;
-		}
-
-		rem_size   -= size_read;
-		rem_buffer += size_read;
 	}
+
+	return success;
+
+	/* size_t rem_size; */
+	/* unsigned char *restrict rem_buffer; */
+
+	/* rem_buffer = &request_buffer[0]; */
+	/* rem_size   = sizeof(request_buffer); */
+
+	/* while (1) { */
+	/* 	DEBUG("read_request (reading)\n"); */
+		/* if (!read_size_report(&size_read, */
+		/* 		      connect_descriptor, */
+		/* 		      rem_buffer, */
+		/* 		      rem_size, */
+		/* 		      failure)) */
+		/* 	return false; */
+
+	/* 	DEBUG("read_request (read %zu bytes)\n", size_read); */
+
+	/* 	if (size_read == 0) { */
+	/* 		*request	= &request_buffer[0]; */
+	/* 		*length_request = rem_buffer - &request_buffer[0]; */
+
+	/* 		DEBUG("got request:\n\"\"\"\n%.*s\n\"\"\"\n", */
+	/* 		      (int) *length_request, */
+	/* 		      *request); */
+	/* 		return true; */
+	/* 	} */
+
+	/* 	if (size_read == rem_size) { */
+	/* 		*failure = READ_REQUEST_FAILURE("buffer overflow"); */
+	/* 		return false; */
+	/* 	} */
+
+	/* 	rem_size   -= size_read; */
+	/* 	rem_buffer += size_read; */
+	/* } */
 }
 
 #define EMAIL_BODY_1 " mentioned you in room \""
@@ -363,6 +404,8 @@ handle_request(const int connect_descriptor,
 				      failure);
 
 		if (success) {
+			DEBUG("forked (handle_request)\n");
+
 			if (process_id == 0) {
 				/* child process */
 				success = dup2_report(pipe_fds[0],
@@ -406,6 +449,8 @@ dispatch_request(const int connect_descriptor,
 
 	success = fork_report(&process_id,
 			      failure);
+
+	DEBUG("forked (dispatch_request)\n");
 
 	if (success) {
 		if (process_id == 0) {

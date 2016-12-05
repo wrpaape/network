@@ -32,9 +32,13 @@ endef
 
 SENDMAIL_PATH := $(shell which sendmail)
 
+$(info $(SENDMAIL_PATH))
+
 ifeq ($(EMPTY),$(SENDMAIL_PATH))
         $(error failed to find 'sendmail')
 endif
+
+SENDMAIL_PATH := "\""$(SENDMAIL_PATH)"\""
 
 # SYSTEM CONFIG
 # ══════════════════════════════════════════════════════════════════════════════
@@ -859,7 +863,7 @@ $(SENDMAIL_SERVER_BIN): $(SENDMAIL_SERVER_BIN_PREQS)
 # make server/sendmail_server object
 # ──────────────────────────────────────────────────────────────────────────────
 $(SENDMAIL_SERVER_OBJ): $(SENDMAIL_SERVER_OBJ_PREQS) is_little_endian
-	$(CC) $(CC_FLAGS) -DIS_LITTLE_ENDIAN=$(IS_LITTLE_ENDIAN) -c $< -o $@
+	$(CC) $(CC_FLAGS) -DIS_LITTLE_ENDIAN=$(IS_LITTLE_ENDIAN) -DSENDMAIL_PATH=$(SENDMAIL_PATH) -c $< -o $@
 
 # make network/network_utils object
 # ──────────────────────────────────────────────────────────────────────────────

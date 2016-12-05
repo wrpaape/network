@@ -1399,6 +1399,8 @@ fork_handle_cl(pid_t *const restrict process_id,
 
 
 /* execve */
+#undef	FAIL_SWITCH_ROUTINE
+#define	FAIL_SWITCH_ROUTINE execve
 #undef	FAIL_SWITCH_FAILURE_RETURN
 #define FAIL_SWITCH_FAILURE_RETURN
 inline void
