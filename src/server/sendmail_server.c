@@ -175,15 +175,14 @@ find_keys(unsigned char *const restrict text,
 }
 
 #if ANNOUNCE_CLIENT
-#define CLIENT_MESSAGE_1	"received request from client { ip: "
-
+#define CLIENT_MESSAGE_1	"\n\n----------\nreceived request from client { ip: "
 #define CLIENT_MESSAGE_2	", port: "
 #define CLIENT_MESSAGE_2_LENGTH	8
 #define PUT_CLIENT_MESSAGE_2(PTR)					\
 PUT_STRING_WIDTH(PTR, CLIENT_MESSAGE_2, CLIENT_MESSAGE_2_LENGTH)
 
-#define CLIENT_MESSAGE_3	" }\n"
-#define CLIENT_MESSAGE_3_LENGTH	3
+#define CLIENT_MESSAGE_3	" }\n----------\n"
+#define CLIENT_MESSAGE_3_LENGTH	14
 #define PUT_CLIENT_MESSAGE_3(PTR)					\
 PUT_STRING_WIDTH(PTR, CLIENT_MESSAGE_3, CLIENT_MESSAGE_3_LENGTH)
 
@@ -250,6 +249,10 @@ spawn_sendmail(const char *restrict *const restrict failure)
 		NULL
 	};
 
+	DEBUG("spawn_sendmail: execve \'%s\' w/ argv: {\"%s\", \"%s\", NULL}\n",
+	      SENDMAIL_PATH,
+	      sendmail_argv[0],
+	      sendmail_argv[1]);
 	execve_report(SENDMAIL_PATH,
 		      sendmail_argv,
 		      environ,
@@ -328,16 +331,25 @@ read_request(const int connect_descriptor,
 	/* } */
 }
 
-#define EMAIL_BODY_1 " mentioned you in room \""
+#define EMAIL_BODY_1 "User \""
 #define PUT_EMAIL_BODY_1(PTR)						\
 PUT_STRING_WIDTH(PTR,							\
 		 EMAIL_BODY_1,						\
-		 25)
-#define EMAIL_BODY_2 "\""
-#define PUT_EMAIL_BODY_2(PTR)						\
-PUT_CHAR(PTR, '\"')
+		 6)
 
-#define LENGTH_EMAIL_BODY_BASE sizeof(EMAIL_BODY_1)
+#define EMAIL_BODY_2 "\" mentioned you in room \""
+#define PUT_EMAIL_BODY_2(PTR)						\
+PUT_STRING_WIDTH(PTR,							\
+		 EMAIL_BODY_2,						\
+		 25)
+#define EMAIL_BODY_3 "\"."
+#define PUT_EMAIL_BODY_3(PTR)						\
+PUT_STRING_WIDTH(PTR,							\
+		 EMAIL_BODY_3,						\
+		 2)
+
+#define LENGTH_EMAIL_BODY_BASE						\
+(sizeof(EMAIL_BODY_1 EMAIL_BODY_2 EMAIL_BODY_3) - 1)
 
 #define WRITE_EMAIL_BODY_FAILURE(REASON)				\
 FAILURE_REASON("write_email_body",					\
@@ -357,18 +369,25 @@ write_email_body(const int sendmail_stdin,
 		return false;
 	}
 
-	ptr = put_string_size(&buffer[0],
+	ptr = &buffer[0];
+
+	PUT_EMAIL_BODY_1(ptr);
+
+	ptr = put_string_size(ptr,
 			      sender.bytes,
 			      sender.length);
 
-	PUT_EMAIL_BODY_1(ptr);
+	PUT_EMAIL_BODY_2(ptr);
 
 	ptr = put_string_size(ptr,
 			      room.bytes,
 			      room.length);
 
-	PUT_EMAIL_BODY_2(ptr);
+	PUT_EMAIL_BODY_3(ptr);
 
+	DEBUG("write_email_body:\n\"\"\"\n%.*s\n\"\"\"\n",
+	      (int) (ptr - &buffer[0]),
+	      &buffer[0]);
 
 	return write_report(sendmail_stdin,
 			    &buffer[0],
@@ -450,9 +469,8 @@ dispatch_request(const int connect_descriptor,
 	success = fork_report(&process_id,
 			      failure);
 
-	DEBUG("forked (dispatch_request)\n");
-
 	if (success) {
+		DEBUG("forked (dispatch_request)\n");
 		if (process_id == 0) {
 			/* child process */
 			success = close_report(socket_descriptor,
