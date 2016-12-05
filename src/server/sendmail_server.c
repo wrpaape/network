@@ -4,7 +4,164 @@
 #define SENDMAIL_PATH "usr/sbin/sendmail"
 #endif /* ifdef SENDMAIL_PATH */
 
-#ifdef ANNOUNCE_CLIENT
+#define ANNOUNCE_CLIENT		1
+#define REQUEST_BUFFER_SIZE	2048
+#define SERVER_PORT		80
+#define LISTEN_QUEUE		128
+#define ACCESS_TOKEN		"dummy_access_token"
+
+struct KeyFinder {
+	const unsigned char *key;
+	unsigned int length;
+	unsigned int skip[UCHAR_MAX + 1];
+};
+
+#define KEY_FINDER_INIT(KEY) {						\
+	.key    = (const unsigned char *) (KEY "="),			\
+	.length = sizeof(KEY),						\
+	.skip   = {							\
+		[0 ... UCHAR_MAX] = sizeof(KEY)				\
+	}								\
+}
+
+static struct KeyFinder find_access_token = KEY_FINDER_INIT("access_token");
+static struct KeyFinder find_email	  = KEY_FINDER_INIT("email");
+static struct KeyFinder find_sender	  = KEY_FINDER_INIT("sender");
+static struct KeyFinder find_room	  = KEY_FINDER_INIT("room");
+
+static struct String access_token;
+static struct String email;
+static struct String sender;
+static struct String room;
+
+static inline void
+key_finder_init_skip(struct KeyFinder *const restrict finder)
+{
+	const unsigned char *const restrict key = finder->key;
+	const unsigned int i_last		= finder->length - 1;
+	unsigned int *const restrict skip	= &finder->skip[0];
+	unsigned int i;
+
+	i = 0;
+	do {
+		skip[key[i]] = i_last - i;
+		++i;
+	} while (i < i_last);
+}
+
+static inline void
+init_key_finders(void)
+{
+	key_finder_init_skip(&find_access_token);
+	key_finder_init_skip(&find_email);
+	key_finder_init_skip(&find_sender);
+	key_finder_init_skip(&find_room);
+}
+
+static inline unsigned char *
+key_finder_find(const struct KeyFinder *const restrict finder,
+		const unsigned char *restrict text,
+		const size_t length_text)
+{
+	unsigned int token;
+	unsigned int i_match;
+
+	const unsigned int length_key = finder->length;
+
+	if (length_text < length_key)
+		return NULL;
+
+	const unsigned char *const restrict key = finder->key;
+	const unsigned int *const restrict skip = &finder->skip[0];
+
+	const unsigned char *const restrict text_until = text + length_text;
+
+	const unsigned int i_last = length_key - 1;
+
+	do {
+		i_match = i_last;
+
+		while (1) {
+			token = (unsigned int) text[i_match];
+
+			if (token != key[i_match])
+				break;
+
+			if (i_match == 0)
+				return (unsigned char *) (text + length_key);
+
+			--i_match;
+		}
+
+		text += skip[token];
+	} while (text < text_until);
+
+	return NULL;
+}
+
+
+static inline void
+key_init(struct String *const restrict key,
+	 unsigned char *restrict text)
+{
+	key->bytes = (char *) text;
+
+	while (1) {
+		switch (*text) {
+		case ' ':
+		case '&':
+			*text = '\0';
+
+		case '\0':
+			key->length = ((char *) text) - key->bytes;
+			return;
+
+		default: /* do nothing */;
+		}
+
+		++text;
+	}
+}
+
+
+#define FIND_KEYS_FAILURE(REASON)				\
+FAILURE_REASON("find_keys",					\
+	       REASON)
+
+#define FIND_KEY(KEY)						\
+found = key_finder_find(&find_ ## KEY,				\
+			text,					\
+			length_text);				\
+if (found == NULL) {						\
+	*failure = FIND_KEYS_FAILURE("failed to find " #KEY);	\
+	return false;						\
+}								\
+key_init(&(KEY),						\
+	 found)
+
+static inline bool
+find_keys(unsigned char *const restrict text,
+	  const size_t length_text,
+	  const char *restrict *const restrict failure)
+{
+	unsigned char *restrict found;
+
+	FIND_KEY(access_token);
+
+	if (!strings_equal(access_token.bytes,
+			   ACCESS_TOKEN)) {
+		*failure = FIND_KEYS_FAILURE("invalid access_token");
+		return false;
+	}
+
+	FIND_KEY(email);
+	FIND_KEY(sender);
+	FIND_KEY(room);
+
+	return true;
+}
+
+#if ANNOUNCE_CLIENT
 #define CLIENT_MESSAGE_1	"received request from client { ip: "
 
 #define CLIENT_MESSAGE_2	", port: "
@@ -66,34 +223,209 @@ announce_client(const struct sockaddr_in *const restrict client_address,
 
 	return success;
 }
-#endif /* ifdef ANNOUNCE_CLIENT */
+#endif /* if ANNOUNCE_CLIENT */
 
 
 static inline void
-spawn_sendmail(const char *restrict email_address)
-__attribute__((noreturn));
-
-static inline void
-spawn_sendmail(char *restrict email_address)
+spawn_sendmail(const char *restrict *const restrict failure)
 {
 	extern char **environ;
 
-	const char *restrict failure;
-
 	char *sendmail_argv[] = {
 		"sendmail",
-		email_address,
+		email.bytes,
 		NULL
 	};
 
 	execve_report(SENDMAIL_PATH,
 		      sendmail_argv,
 		      environ,
-		      &failure);
-
-	exit_failure_print_message(failure);
+		      failure);
 }
 
+#define READ_REQUEST_FAILURE(REASON)				\
+FAILURE_REASON("read_request",					\
+	       REASON)
+
+static inline bool
+read_request(const int connect_descriptor,
+	     unsigned char *restrict *const restrict request,
+	     size_t *const restrict length_request,
+	     const char *restrict *const restrict failure)
+{
+	static unsigned char request_buffer[REQUEST_BUFFER_SIZE];
+
+	size_t size_read;
+	size_t rem_size;
+	unsigned char *restrict rem_buffer;
+
+	rem_buffer = &request_buffer[0];
+	rem_size   = sizeof(request_buffer);
+
+	while (1) {
+		if (!read_size_report(&size_read,
+				      connect_descriptor,
+				      rem_buffer,
+				      rem_size,
+				      failure))
+			return false;
+
+
+		if (size_read == 0) {
+			*request	= &request_buffer[0];
+			*length_request = rem_buffer - &request_buffer[0];
+			return true;
+		}
+
+		if (size_read == rem_size) {
+			*failure = READ_REQUEST_FAILURE("buffer overflow");
+			return false;
+		}
+
+		rem_size   -= size_read;
+		rem_buffer += size_read;
+	}
+}
+
+#define EMAIL_BODY_1 " mentioned you in room \""
+#define PUT_EMAIL_BODY_1(PTR)						\
+PUT_STRING_WIDTH(PTR,							\
+		 EMAIL_BODY_1,						\
+		 25)
+#define EMAIL_BODY_2 "\""
+#define PUT_EMAIL_BODY_2(PTR)						\
+PUT_CHAR(PTR, '\"')
+
+#define LENGTH_EMAIL_BODY_BASE sizeof(EMAIL_BODY_1)
+
+#define WRITE_EMAIL_BODY_FAILURE(REASON)				\
+FAILURE_REASON("write_email_body",					\
+	       REASON)
+
+static inline bool
+write_email_body(const int sendmail_stdin,
+		 const char *restrict *const restrict failure)
+{
+	char buffer[512];
+	char *restrict ptr;
+
+	if ((  LENGTH_EMAIL_BODY_BASE
+	     + sender.length
+	     + room.length) > sizeof(buffer)) {
+		*failure = WRITE_EMAIL_BODY_FAILURE("buffer overflow");
+		return false;
+	}
+
+	ptr = put_string_size(&buffer[0],
+			      sender.bytes,
+			      sender.length);
+
+	PUT_EMAIL_BODY_1(ptr);
+
+	ptr = put_string_size(ptr,
+			      room.bytes,
+			      room.length);
+
+	PUT_EMAIL_BODY_2(ptr);
+
+
+	return write_report(sendmail_stdin,
+			    &buffer[0],
+			    ptr - &buffer[0],
+			    failure);
+}
+
+
+static inline bool
+handle_request(const int connect_descriptor,
+	       const char *restrict *const restrict failure)
+{
+	int pipe_fds[2];
+	pid_t process_id;
+	bool success;
+	unsigned char *restrict request;
+	size_t length_request;
+
+	success = read_request(connect_descriptor,
+			       &request,
+			       &length_request,
+			       failure)
+	       && close_report(connect_descriptor,
+			       failure)
+	       && find_keys(request,
+			    length_request,
+			    failure);
+
+	if (success) {
+		success = pipe_report(pipe_fds,
+				      failure)
+		       && fork_report(&process_id,
+				      failure);
+
+		if (success) {
+			if (process_id == 0) {
+				/* child process */
+				success = dup2_report(pipe_fds[0],
+						      STDIN_FILENO,
+						      failure)
+				       && close_report(pipe_fds[1],
+						       failure);
+
+				if (success) {
+					spawn_sendmail(failure);
+					success = false;
+				}
+			} else {
+				/* parent process */
+				success = close_report(pipe_fds[0],
+						       failure)
+				       && write_email_body(pipe_fds[1],
+							   failure)
+				       && close_report(pipe_fds[1],
+						       failure);
+
+				if (success) {
+					exit(EXIT_SUCCESS);
+					__builtin_unreachable();
+				}
+			}
+		}
+	}
+
+	return success;
+}
+
+static inline bool
+dispatch_request(const int connect_descriptor,
+		 const int socket_descriptor,
+		 const char *restrict *const restrict failure)
+{
+	bool success;
+
+	pid_t process_id;
+
+	success = fork_report(&process_id,
+			      failure);
+
+	if (success) {
+		if (process_id == 0) {
+			/* child process */
+			success = close_report(socket_descriptor,
+					       failure)
+			       && handle_request(connect_descriptor,
+						 failure);
+			/* should only return on failure */
+
+		} else {
+			/* parent process */
+			success = close_report(connect_descriptor,
+					       failure);
+		}
+
+	}
+
+	return success;
+}
 
 
 int
@@ -105,6 +437,8 @@ main(void)
 	struct sockaddr_in client_address;
 	socklen_t length_client_address;
 
+	static struct sockaddr_in server_address;
+
 	if (!socket_report(&socket_descriptor,
 			   PF_INET,
 			   SOCK_STREAM,
@@ -112,9 +446,9 @@ main(void)
 			   &failure))
 		exit_failure_print_message(failure);
 
-	server_address.sin_family	= AF_INET;
-	server_address.sin_addr.s_addr	= NETWORK_LONG(INADDR_ANY);
-	server_address.sin_port		= NETWORK_SHORT(SERVER_PORT);
+	server_address.sin_family      = AF_INET;
+	server_address.sin_addr.s_addr = NETWORK_LONG(INADDR_ANY);
+	server_address.sin_port	       = NETWORK_SHORT(SERVER_PORT);
 
 	if (!bind_report(socket_descriptor,
 			 (struct sockaddr *) &server_address,
@@ -128,18 +462,25 @@ main(void)
 		exit_failure_print_message(failure);
 
 
+	init_key_finders();
+
+
 	while (1) {
 		length_client_address = sizeof(client_address);
 
-		if (accept_report(&connect_descriptor,
-				  socket_descriptor,
-				  (struct sockaddr *) &client_address,
-				  &length_client_address,
-				  &failure)) {
-
-		} else {
+		if (!(   accept_report(&connect_descriptor,
+				       socket_descriptor,
+				       (struct sockaddr *) &client_address,
+				       &length_client_address,
+				       &failure)
+#if ANNOUNCE_CLIENT
+		      && announce_client(&client_address,
+					 &failure)
+#endif /* if ANNOUNCE_CLIENT */
+		      && dispatch_request(connect_descriptor,
+					  socket_descriptor,
+					  &failure)))
 			exit_failure_print_message(failure);
-		}
 	}
 
 	/* unreachable */

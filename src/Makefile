@@ -792,6 +792,21 @@ TIMESTAMP_CLIENT_OBJ_PREQS	:= $(TIMESTAMP_CLIENT_SRC)		\
 TARGETS				+= $(TIMESTAMP_CLIENT_OBJ)		\
 				   $(TIMESTAMP_CLIENT_BIN)
 
+# sendmail_server
+# ──────────────────────────────────────────────────────────────────────────────
+SENDMAIL_SERVER_SRC 		:= $(call HELPER_SOURCE_PATH,server sendmail_server)
+SENDMAIL_SERVER_OBJ		:= $(call HELPER_OBJECT_PATH,server sendmail_server)
+SENDMAIL_SERVER_BIN		:= $(call BINARY_PATH,sendmail_server)
+# ─────────────── target prequisites ───────────────────────────────────────────
+SENDMAIL_SERVER_BIN_PREQS	:= $(SENDMAIL_SERVER_OBJ)		\
+				   $(NETWORK_NETWORK_UTILS_OBJ_GROUP)
+SENDMAIL_SERVER_OBJ_PREQS	:= $(SENDMAIL_SERVER_SRC)		\
+				   $(NETWORK_NETWORK_UTILS_HDR)		\
+				   $(IS_LITTLE_ENDIAN_BIN)
+# ─────────────── targets ──────────────────────────────────────────────────────
+TARGETS				+= $(SENDMAIL_SERVER_OBJ)		\
+				   $(SENDMAIL_SERVER_BIN)
+
 
 # ══════════════════════════════════════════════════════════════════════════════
 # ──────────────────────────────────────────────────────────────────────────────
@@ -834,6 +849,16 @@ $(TIMESTAMP_SERVER_BIN): $(TIMESTAMP_SERVER_BIN_PREQS)
 # make server/timestamp_server object
 # ──────────────────────────────────────────────────────────────────────────────
 $(TIMESTAMP_SERVER_OBJ): $(TIMESTAMP_SERVER_OBJ_PREQS) is_little_endian
+	$(CC) $(CC_FLAGS) -DIS_LITTLE_ENDIAN=$(IS_LITTLE_ENDIAN) -c $< -o $@
+
+# make server/sendmail_server binary
+# ──────────────────────────────────────────────────────────────────────────────
+$(SENDMAIL_SERVER_BIN): $(SENDMAIL_SERVER_BIN_PREQS)
+	$(LD) $(LD_FLAGS) $^ $(LD_LIB_FLAGS) -o $@
+
+# make server/sendmail_server object
+# ──────────────────────────────────────────────────────────────────────────────
+$(SENDMAIL_SERVER_OBJ): $(SENDMAIL_SERVER_OBJ_PREQS) is_little_endian
 	$(CC) $(CC_FLAGS) -DIS_LITTLE_ENDIAN=$(IS_LITTLE_ENDIAN) -c $< -o $@
 
 # make network/network_utils object
