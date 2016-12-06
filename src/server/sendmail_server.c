@@ -120,7 +120,6 @@ key_init(struct String *const restrict key,
 
 	while (1) {
 		switch (*text) {
-		case ' ':
 		case ',':
 			*text = '\0';
 
