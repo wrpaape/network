@@ -478,10 +478,10 @@ main(void)
 	if (!(   bind_report(socket_descriptor,
 			     (struct sockaddr *) &server_address,
 			     sizeof(server_address),
-			     &failure))
+			     &failure)
 	      && listen_report(socket_descriptor,
 			       LISTEN_QUEUE,
-			       &failure))
+			       &failure)))
 		exit_failure_print_message(failure);
 
 
