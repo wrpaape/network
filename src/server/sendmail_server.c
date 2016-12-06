@@ -28,11 +28,13 @@ struct KeyFinder {
 	unsigned int skip[UCHAR_MAX + 1];
 };
 
+#define KEY_FIELD(KEY)  ("\"" KEY "\":"),
+#define LENGTH_KEY(KEY) (sizeof(KEY_FIELD(KEY)) - 1)
 #define KEY_FINDER_INIT(KEY) {						\
-	.key    = (const unsigned char *) ("\"" KEY "\":"),		\
-	.length = sizeof(KEY) + 2,					\
+	.key    = (const unsigned char *) KEY_FIELD(KEY),		\
+	.length = LENGTH_KEY(KEY),					\
 	.skip   = {							\
-		[0 ... UCHAR_MAX] = sizeof(KEY) + 2			\
+		[0 ... UCHAR_MAX] = LENGTH_KEY(KEY)			\
 	}								\
 }
 
