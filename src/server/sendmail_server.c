@@ -6,10 +6,10 @@
 
 #define DO_DEBUG		1
 #define ANNOUNCE_CLIENT		1
-#define REQUEST_BUFFER_SIZE	2048
+#define REQUEST_BUFFER_SIZE	4096
 #define SERVER_PORT		80
 #define LISTEN_QUEUE		128
-#define TOKEN			"dummy_token"
+#define TOKEN			"\"dummy_token\""
 
 
 #if DO_DEBUG
@@ -29,17 +29,17 @@ struct KeyFinder {
 };
 
 #define KEY_FINDER_INIT(KEY) {						\
-	.key    = (const unsigned char *) (KEY "="),			\
-	.length = sizeof(KEY),						\
+	.key    = (const unsigned char *) ("\"" KEY "\":"),		\
+	.length = sizeof(KEY) + 2,					\
 	.skip   = {							\
-		[0 ... UCHAR_MAX] = sizeof(KEY)				\
+		[0 ... UCHAR_MAX] = sizeof(KEY) + 2			\
 	}								\
 }
 
-static struct KeyFinder find_access_token = KEY_FINDER_INIT("token");
-static struct KeyFinder find_email	  = KEY_FINDER_INIT("email");
-static struct KeyFinder find_sender	  = KEY_FINDER_INIT("sender");
-static struct KeyFinder find_room	  = KEY_FINDER_INIT("room");
+static struct KeyFinder find_token  = KEY_FINDER_INIT("token");
+static struct KeyFinder find_email  = KEY_FINDER_INIT("email");
+static struct KeyFinder find_sender = KEY_FINDER_INIT("sender");
+static struct KeyFinder find_room   = KEY_FINDER_INIT("room");
 
 static struct String token;
 static struct String email;
@@ -64,7 +64,7 @@ key_finder_init_skip(struct KeyFinder *const restrict finder)
 static inline void
 init_key_finders(void)
 {
-	key_finder_init_skip(&find_access_token);
+	key_finder_init_skip(&find_token);
 	key_finder_init_skip(&find_email);
 	key_finder_init_skip(&find_sender);
 	key_finder_init_skip(&find_room);
@@ -121,17 +121,16 @@ key_init(struct String *const restrict key,
 	while (1) {
 		switch (*text) {
 		case ' ':
-		case '&':
+		case ',':
 			*text = '\0';
 
 		case '\0':
 			key->length = ((char *) text) - key->bytes;
 			return;
 
-		default: /* do nothing */;
+		default:
+			++text;
 		}
-
-		++text;
 	}
 }
 
@@ -293,60 +292,22 @@ read_request(const int connect_descriptor,
 	}
 
 	return success;
-
-	/* size_t rem_size; */
-	/* unsigned char *restrict rem_buffer; */
-
-	/* rem_buffer = &request_buffer[0]; */
-	/* rem_size   = sizeof(request_buffer); */
-
-	/* while (1) { */
-	/* 	DEBUG("read_request (reading)\n"); */
-		/* if (!read_size_report(&size_read, */
-		/* 		      connect_descriptor, */
-		/* 		      rem_buffer, */
-		/* 		      rem_size, */
-		/* 		      failure)) */
-		/* 	return false; */
-
-	/* 	DEBUG("read_request (read %zu bytes)\n", size_read); */
-
-	/* 	if (size_read == 0) { */
-	/* 		*request	= &request_buffer[0]; */
-	/* 		*length_request = rem_buffer - &request_buffer[0]; */
-
-	/* 		DEBUG("got request:\n\"\"\"\n%.*s\n\"\"\"\n", */
-	/* 		      (int) *length_request, */
-	/* 		      *request); */
-	/* 		return true; */
-	/* 	} */
-
-	/* 	if (size_read == rem_size) { */
-	/* 		*failure = READ_REQUEST_FAILURE("buffer overflow"); */
-	/* 		return false; */
-	/* 	} */
-
-	/* 	rem_size   -= size_read; */
-	/* 	rem_buffer += size_read; */
-	/* } */
 }
 
-#define EMAIL_BODY_1 "User \""
+#define EMAIL_BODY_1 "User "
 #define PUT_EMAIL_BODY_1(PTR)						\
 PUT_STRING_WIDTH(PTR,							\
 		 EMAIL_BODY_1,						\
-		 6)
+		 5)
 
-#define EMAIL_BODY_2 "\" mentioned you in room \""
+#define EMAIL_BODY_2 " mentioned you in room "
 #define PUT_EMAIL_BODY_2(PTR)						\
 PUT_STRING_WIDTH(PTR,							\
 		 EMAIL_BODY_2,						\
-		 25)
-#define EMAIL_BODY_3 "\"."
+		 23)
+#define EMAIL_BODY_3 "."
 #define PUT_EMAIL_BODY_3(PTR)						\
-PUT_STRING_WIDTH(PTR,							\
-		 EMAIL_BODY_3,						\
-		 2)
+PUT_CHAR(PTR, '.')
 
 #define LENGTH_EMAIL_BODY_BASE						\
 (sizeof(EMAIL_BODY_1 EMAIL_BODY_2 EMAIL_BODY_3) - 1)
@@ -471,6 +432,7 @@ dispatch_request(const int connect_descriptor,
 
 	if (success) {
 		DEBUG("forked (dispatch_request)\n");
+
 		if (process_id == 0) {
 			/* child process */
 			success = close_report(socket_descriptor,
