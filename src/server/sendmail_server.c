@@ -221,7 +221,7 @@ announce_client(const struct sockaddr_in *const restrict client_address,
 
 		ptr
 		= put_uint(ptr,
-			   (uintmax_t) NETWORK_SHORT(client_address->sin_port));
+			   (uintmax_t) HOST_SHORT(client_address->sin_port));
 
 		PUT_CLIENT_MESSAGE_3(ptr);
 
@@ -238,7 +238,7 @@ announce_client(const struct sockaddr_in *const restrict client_address,
 
 
 static inline void
-spawn_sendmail(const char *restrict *const restrict failure)
+exec_sendmail(const char *restrict *const restrict failure)
 {
 	extern char **environ;
 
@@ -248,7 +248,7 @@ spawn_sendmail(const char *restrict *const restrict failure)
 		NULL
 	};
 
-	DEBUG("spawn_sendmail: execve \'%s\' w/ argv: {\"%s\", \"%s\", NULL}\n",
+	DEBUG("exec_sendmail: execve \'%s\' w/ argv: {\"%s\", \"%s\", NULL}\n",
 	      SENDMAIL_PATH,
 	      sendmail_argv[0],
 	      sendmail_argv[1]);
@@ -395,7 +395,7 @@ handle_request(const int connect_descriptor,
 						       failure);
 
 				if (success) {
-					spawn_sendmail(failure);
+					exec_sendmail(failure);
 					success = false;
 				}
 			} else {
