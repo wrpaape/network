@@ -1,7 +1,7 @@
 #include "network/network_utils.h"	/* network utils */
 
 #ifndef SENDMAIL_PATH
-#define SENDMAIL_PATH "usr/sbin/sendmail"
+#define SENDMAIL_PATH "/usr/sbin/sendmail"
 #endif /* ifdef SENDMAIL_PATH */
 
 #define DO_DEBUG		1
