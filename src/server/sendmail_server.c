@@ -9,7 +9,7 @@
 #define REQUEST_BUFFER_SIZE	2048
 #define SERVER_PORT		80
 #define LISTEN_QUEUE		128
-#define ACCESS_TOKEN		"dummy_access_token"
+#define TOKEN			"dummy_token"
 
 
 #if DO_DEBUG
@@ -36,12 +36,12 @@ struct KeyFinder {
 	}								\
 }
 
-static struct KeyFinder find_access_token = KEY_FINDER_INIT("access_token");
+static struct KeyFinder find_access_token = KEY_FINDER_INIT("token");
 static struct KeyFinder find_email	  = KEY_FINDER_INIT("email");
 static struct KeyFinder find_sender	  = KEY_FINDER_INIT("sender");
 static struct KeyFinder find_room	  = KEY_FINDER_INIT("room");
 
-static struct String access_token;
+static struct String token;
 static struct String email;
 static struct String sender;
 static struct String room;
@@ -159,11 +159,11 @@ find_keys(unsigned char *const restrict text,
 {
 	unsigned char *restrict found;
 
-	FIND_KEY(access_token);
+	FIND_KEY(token);
 
-	if (!strings_equal(access_token.bytes,
-			   ACCESS_TOKEN)) {
-		*failure = FIND_KEYS_FAILURE("invalid access_token");
+	if (!strings_equal(token.bytes,
+			   TOKEN)) {
+		*failure = FIND_KEYS_FAILURE("invalid token");
 		return false;
 	}
 
@@ -513,15 +513,13 @@ main(void)
 	server_address.sin_addr.s_addr = NETWORK_LONG(INADDR_ANY);
 	server_address.sin_port	       = NETWORK_SHORT(SERVER_PORT);
 
-	if (!bind_report(socket_descriptor,
-			 (struct sockaddr *) &server_address,
-			 sizeof(server_address),
-			 &failure))
-		exit_failure_print_message(failure);
-
-	if (!listen_report(socket_descriptor,
-			   LISTEN_QUEUE,
-			   &failure))
+	if (!(   bind_report(socket_descriptor,
+			     (struct sockaddr *) &server_address,
+			     sizeof(server_address),
+			     &failure))
+	      && listen_report(socket_descriptor,
+			       LISTEN_QUEUE,
+			       &failure))
 		exit_failure_print_message(failure);
 
 
