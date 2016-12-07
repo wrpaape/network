@@ -312,6 +312,9 @@ send_response(const int connect_descriptor,
 			 "\r\nConnection: close\r\n\r\n",
 			 23);
 
+	DEBUG("send_response:\n\"\"\"%s\n\"\"\"\n",
+	      &buffer[0]);
+
 	return write_report(connect_descriptor,
 			    &buffer[0],
 			    ptr - &buffer[0],
