@@ -28,7 +28,7 @@ struct KeyFinder {
 	unsigned int skip[UCHAR_MAX + 1];
 };
 
-#define KEY_FIELD(KEY)  ("\"" KEY "\":"),
+#define KEY_FIELD(KEY)  ("\"" KEY "\":")
 #define LENGTH_KEY(KEY) (sizeof(KEY_FIELD(KEY)) - 1)
 #define KEY_FINDER_INIT(KEY) {						\
 	.key    = (const unsigned char *) KEY_FIELD(KEY),		\
@@ -176,7 +176,7 @@ find_keys(unsigned char *const restrict text,
 }
 
 #if ANNOUNCE_CLIENT
-#define CLIENT_MESSAGE_1	"\n\n----------\nreceived request from client { ip: "
+#define CLIENT_MESSAGE_1	"\n\n\n----------\nreceived request from client { ip: "
 #define CLIENT_MESSAGE_2	", port: "
 #define CLIENT_MESSAGE_2_LENGTH	8
 #define PUT_CLIENT_MESSAGE_2(PTR)					\
