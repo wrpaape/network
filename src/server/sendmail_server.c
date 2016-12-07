@@ -498,7 +498,7 @@ handle_request(const int connect_descriptor,
 			}
 
 		} else {
-			DEBUG("invalid token\n");
+			DEBUG("token not found or invalid\n");
 			success = send_response(connect_descriptor,
 						"403 Forbidden",
 						failure);
