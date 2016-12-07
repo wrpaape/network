@@ -74,8 +74,9 @@ struct Timestamp {
 #define TIME_SECONDS_PER_DAY	86400u
 #define TIME_SECONDS_PER_YEAR	31556952u
 /* #define TIME_SECONDS_OFFSET	62167153752u */
-#define TIME_SECONDS_OFFSET	62167208832u /* add 55080 (15 hours, 18 minutes)
-						for current UTC */
+#define TIME_SECONDS_OFFSET	62167122492u /* GMT */
+/* #define TIME_SECONDS_OFFSET	62167208832u /1* add 55080 (15 hours, 18 minutes) */
+/* 						for current UTC *1/ */
 
 #define JANUARY	   1u
 #define FEBRUARY   2u

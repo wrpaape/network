@@ -1,4 +1,5 @@
 #include "network/network_utils.h"	/* network utils */
+#include "time/time_string.h"		/* put http_date */
 
 #ifndef SENDMAIL_PATH
 #define SENDMAIL_PATH "/usr/sbin/sendmail"
@@ -160,8 +161,6 @@ find_keys(unsigned char *const restrict text,
 {
 	unsigned char *restrict found;
 
-	FIND_KEY(token);
-
 	if (!strings_equal(token.bytes,
 			   TOKEN)) {
 		*failure = FIND_KEYS_FAILURE("invalid token");
@@ -173,6 +172,23 @@ find_keys(unsigned char *const restrict text,
 	FIND_KEY(room);
 
 	return true;
+}
+
+static inline bool
+verify_request(unsigned char *const restrict text,
+	       const size_t length_text,
+	       const char *restrict *const restrict failure)
+{
+	unsigned char *restrict found;
+
+	FIND_KEY(token);
+
+	const bool is_valid = strings_equal(token.bytes,
+					    TOKEN);
+	if (!is_valid)
+		*failure = FIND_KEYS_FAILURE("invalid token");
+
+	return is_valid;
 }
 
 #if ANNOUNCE_CLIENT
@@ -465,6 +481,19 @@ main(void)
 	socklen_t length_client_address;
 
 	static struct sockaddr_in server_address;
+
+	static char buffer[256];
+	struct Timestamp timestamp;
+
+	timestamp_now_muffle(&timestamp);
+	(void) put_http_date(&buffer[0],
+			     &timestamp);
+	puts(&buffer[0]);
+
+	timestamp_string_init(&buffer[0],
+			      &timestamp);
+	puts(&buffer[0]);
+	return 0;
 
 	if (!socket_report(&socket_descriptor,
 			   PF_INET,

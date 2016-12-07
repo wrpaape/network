@@ -803,8 +803,10 @@ SENDMAIL_SERVER_OBJ		:= $(call HELPER_OBJECT_PATH,server sendmail_server)
 SENDMAIL_SERVER_BIN		:= $(call BINARY_PATH,sendmail_server)
 # ─────────────── target prequisites ───────────────────────────────────────────
 SENDMAIL_SERVER_BIN_PREQS	:= $(SENDMAIL_SERVER_OBJ)		\
+				   $(TIME_TIME_STRING_OBJ_GROUP)	\
 				   $(NETWORK_NETWORK_UTILS_OBJ_GROUP)
 SENDMAIL_SERVER_OBJ_PREQS	:= $(SENDMAIL_SERVER_SRC)		\
+				   $(TIME_TIME_STRING_HDR)		\
 				   $(NETWORK_NETWORK_UTILS_HDR)		\
 				   $(IS_LITTLE_ENDIAN_BIN)
 # ─────────────── targets ──────────────────────────────────────────────────────
