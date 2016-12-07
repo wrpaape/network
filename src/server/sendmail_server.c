@@ -161,12 +161,6 @@ find_keys(unsigned char *const restrict text,
 {
 	unsigned char *restrict found;
 
-	if (!strings_equal(token.bytes,
-			   TOKEN)) {
-		*failure = FIND_KEYS_FAILURE("invalid token");
-		return false;
-	}
-
 	FIND_KEY(email);
 	FIND_KEY(sender);
 	FIND_KEY(room);
@@ -175,20 +169,27 @@ find_keys(unsigned char *const restrict text,
 }
 
 static inline bool
-verify_request(unsigned char *const restrict text,
-	       const size_t length_text,
-	       const char *restrict *const restrict failure)
+verify_request(unsigned char *const restrict request,
+	       const size_t length_request)
 {
-	unsigned char *restrict found;
 
-	FIND_KEY(token);
+	unsigned char *const restrict found_token
+	= key_finder_find(&find_token,
+			  request,
+			  length_request);
 
-	const bool is_valid = strings_equal(token.bytes,
-					    TOKEN);
-	if (!is_valid)
-		*failure = FIND_KEYS_FAILURE("invalid token");
+	if (found_token == NULL)
+		return false;
 
-	return is_valid;
+	key_init(&token,
+		 found_token);
+
+	DEBUG("found token: \"%s\"\n",
+	      token.bytes);
+
+
+	return strings_equal(token.bytes,
+			     TOKEN);
 }
 
 #if ANNOUNCE_CLIENT
@@ -279,6 +280,43 @@ exec_sendmail(const char *restrict *const restrict failure)
 #define READ_REQUEST_FAILURE(REASON)				\
 FAILURE_REASON("read_request",					\
 	       REASON)
+
+
+static inline bool
+send_response(const int connect_descriptor,
+	      const char *const restrict http_status,
+	      const char *restrict *const restrict failure)
+{
+	char buffer[256];
+	char *restrict ptr;
+	struct Timestamp timestamp;
+
+	if (!timestamp_now_report(&timestamp,
+				  failure))
+		return false;
+
+	ptr = &buffer[0];
+
+	PUT_STRING_WIDTH(ptr, "HTTP/1.1 ", 9);
+
+	ptr = put_string(ptr,
+			 http_status);
+
+
+	PUT_STRING_WIDTH(ptr, "\r\nDate: ", 8);
+
+	ptr = put_http_date(ptr,
+			    &timestamp);
+
+	PUT_STRING_WIDTH(ptr,
+			 "\r\nConnection: close\r\n\r\n",
+			 23);
+
+	return write_report(connect_descriptor,
+			    &buffer[0],
+			    ptr - &buffer[0],
+			    failure);
+}
 
 static inline bool
 read_request(const int connect_descriptor,
@@ -376,11 +414,56 @@ write_email_body(const int sendmail_stdin,
 
 
 static inline bool
-handle_request(const int connect_descriptor,
-	       const char *restrict *const restrict failure)
+send_email(const char *restrict *const restrict failure)
 {
 	int pipe_fds[2];
 	pid_t process_id;
+	bool success;
+
+	success = pipe_report(pipe_fds,
+			      failure)
+	       && fork_report(&process_id,
+			      failure);
+
+	if (success) {
+		DEBUG("forked (send_email)\n");
+
+		if (process_id == 0) {
+			/* child process */
+			success = dup2_report(pipe_fds[0],
+					      STDIN_FILENO,
+					      failure)
+			       && close_report(pipe_fds[1],
+					       failure);
+
+			if (success) {
+				exec_sendmail(failure);
+				success = false;
+			}
+		} else {
+			/* parent process */
+			success = close_report(pipe_fds[0],
+					       failure)
+			       && write_email_body(pipe_fds[1],
+						   failure)
+			       && close_report(pipe_fds[1],
+					       failure);
+
+			if (success) {
+				exit(EXIT_SUCCESS);
+				__builtin_unreachable();
+			}
+		}
+	}
+
+	return success;
+}
+
+
+static inline bool
+handle_request(const int connect_descriptor,
+	       const char *restrict *const restrict failure)
+{
 	bool success;
 	unsigned char *restrict request;
 	size_t length_request;
@@ -388,49 +471,48 @@ handle_request(const int connect_descriptor,
 	success = read_request(connect_descriptor,
 			       &request,
 			       &length_request,
-			       failure)
-	       && close_report(connect_descriptor,
-			       failure)
-	       && find_keys(request,
-			    length_request,
-			    failure);
+			       failure);
 
 	if (success) {
-		success = pipe_report(pipe_fds,
-				      failure)
-		       && fork_report(&process_id,
-				      failure);
+		if (verify_request(request,
+				   length_request)) {
+			DEBUG("valid token\n");
+			success = send_response(connect_descriptor,
+						"200 OK",
+						failure);
 
-		if (success) {
-			DEBUG("forked (handle_request)\n");
-
-			if (process_id == 0) {
-				/* child process */
-				success = dup2_report(pipe_fds[0],
-						      STDIN_FILENO,
-						      failure)
-				       && close_report(pipe_fds[1],
-						       failure);
-
-				if (success) {
-					exec_sendmail(failure);
-					success = false;
-				}
-			} else {
-				/* parent process */
-				success = close_report(pipe_fds[0],
+			if (success) {
+				success = close_report(connect_descriptor,
 						       failure)
-				       && write_email_body(pipe_fds[1],
-							   failure)
-				       && close_report(pipe_fds[1],
-						       failure);
+				       && find_keys(request,
+						    length_request,
+						    failure)
+				       && send_email(failure);
+				/* should only return on failure */
 
+			} else {
+				close_muffle(connect_descriptor);
+			}
+
+		} else {
+			DEBUG("invalid token\n");
+			success = send_response(connect_descriptor,
+						"403 Forbidden",
+						failure);
+
+			if (success) {
+				success = close_report(connect_descriptor,
+						       failure);
 				if (success) {
 					exit(EXIT_SUCCESS);
 					__builtin_unreachable();
 				}
+			} else {
+				close_muffle(connect_descriptor);
 			}
 		}
+	} else {
+		close_muffle(connect_descriptor);
 	}
 
 	return success;
@@ -481,19 +563,6 @@ main(void)
 	socklen_t length_client_address;
 
 	static struct sockaddr_in server_address;
-
-	static char buffer[256];
-	struct Timestamp timestamp;
-
-	timestamp_now_muffle(&timestamp);
-	(void) put_http_date(&buffer[0],
-			     &timestamp);
-	puts(&buffer[0]);
-
-	timestamp_string_init(&buffer[0],
-			      &timestamp);
-	puts(&buffer[0]);
-	return 0;
 
 	if (!socket_report(&socket_descriptor,
 			   PF_INET,
