@@ -6,7 +6,6 @@
 #endif /* ifdef SENDMAIL_PATH */
 
 #define DO_DEBUG		1
-#define ANNOUNCE_CLIENT		1
 #define REQUEST_BUFFER_SIZE	4096
 #define SERVER_PORT		80
 #define LISTEN_QUEUE		128
@@ -22,6 +21,20 @@ fflush(stdout)
 #else
 #	define DEBUG(...)
 #endif /* if DO_DEBUG */
+
+
+#define FOR_ALL_NON_TOKEN_KEYS(MACRO)					\
+MACRO(email);								\
+MACRO(recipient);							\
+MACRO(sender);								\
+MACRO(room);								\
+MACRO(message);								\
+MACRO(mentions);							\
+MACRO(timestamp)
+
+#define FOR_ALL_KEYS(MACRO)						\
+FOR_ALL_NON_TOKEN_KEYS(MACRO);						\
+MACRO(token)
 
 struct KeyFinder {
 	const unsigned char *key;
@@ -39,15 +52,10 @@ struct KeyFinder {
 	}								\
 }
 
-static struct KeyFinder find_token  = KEY_FINDER_INIT("token");
-static struct KeyFinder find_email  = KEY_FINDER_INIT("email");
-static struct KeyFinder find_sender = KEY_FINDER_INIT("sender");
-static struct KeyFinder find_room   = KEY_FINDER_INIT("room");
-
-static struct String token;
-static struct String email;
-static struct String sender;
-static struct String room;
+#define DECLARE_KEY(KEY)						\
+static struct KeyFinder find_ ## KEY  = KEY_FINDER_INIT(#KEY);		\
+static struct String KEY
+FOR_ALL_KEYS(DECLARE_KEY);
 
 static inline void
 key_finder_init_skip(struct KeyFinder *const restrict finder)
@@ -67,10 +75,8 @@ key_finder_init_skip(struct KeyFinder *const restrict finder)
 static inline void
 init_key_finders(void)
 {
-	key_finder_init_skip(&find_token);
-	key_finder_init_skip(&find_email);
-	key_finder_init_skip(&find_sender);
-	key_finder_init_skip(&find_room);
+#define INIT_SKIP(KEY) key_finder_init_skip(&(find_ ## KEY))
+	FOR_ALL_KEYS(INIT_SKIP);
 }
 
 static inline unsigned char *
@@ -161,9 +167,7 @@ find_keys(unsigned char *const restrict text,
 {
 	unsigned char *restrict found;
 
-	FIND_KEY(email);
-	FIND_KEY(sender);
-	FIND_KEY(room);
+	FOR_ALL_NON_TOKEN_KEYS(FIND_KEY);
 
 	return true;
 }
@@ -178,8 +182,10 @@ verify_request(unsigned char *const restrict request,
 			  request,
 			  length_request);
 
-	if (found_token == NULL)
+	if (found_token == NULL) {
+		DEBUG("failed to find token\n");
 		return false;
+	}
 
 	key_init(&token,
 		 found_token);
@@ -187,12 +193,11 @@ verify_request(unsigned char *const restrict request,
 	DEBUG("found token: \"%s\"\n",
 	      token.bytes);
 
-
 	return strings_equal(token.bytes,
 			     TOKEN);
 }
 
-#if ANNOUNCE_CLIENT
+#if DO_DEBUG
 #define CLIENT_MESSAGE_1	"\n\n\n----------\nreceived request from client { ip: "
 #define CLIENT_MESSAGE_2	", port: "
 #define CLIENT_MESSAGE_2_LENGTH	8
@@ -253,7 +258,7 @@ announce_client(const struct sockaddr_in *const restrict client_address,
 
 	return success;
 }
-#endif /* if ANNOUNCE_CLIENT */
+#endif /* if DO_DEBUG */
 
 
 static inline void
@@ -600,10 +605,10 @@ main(void)
 				       (struct sockaddr *) &client_address,
 				       &length_client_address,
 				       &failure)
-#if ANNOUNCE_CLIENT
+#if DO_DEBUG
 		      && announce_client(&client_address,
 					 &failure)
-#endif /* if ANNOUNCE_CLIENT */
+#endif /* if DO_DEBUG */
 		      && dispatch_request(connect_descriptor,
 					  socket_descriptor,
 					  &failure)))
