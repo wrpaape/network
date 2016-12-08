@@ -144,6 +144,13 @@ key_init(struct String *const restrict key,
 }
 
 
+static inline bool
+find_keys(unsigned char *const restrict text,
+	  const size_t length_text,
+	  const char *restrict *const restrict failure)
+{
+	unsigned char *restrict found;
+
 #define FIND_KEYS_FAILURE(REASON)				\
 FAILURE_REASON("find_keys",					\
 	       REASON)
@@ -159,14 +166,6 @@ if (found == NULL) {						\
 key_init(&(KEY),						\
 	 found);						\
 DEBUG("found " #KEY ": \"%s\"\n", (KEY).bytes)
-
-static inline bool
-find_keys(unsigned char *const restrict text,
-	  const size_t length_text,
-	  const char *restrict *const restrict failure)
-{
-	unsigned char *restrict found;
-
 	FOR_ALL_NON_TOKEN_KEYS(FIND_KEY);
 
 	return true;
@@ -282,9 +281,6 @@ exec_sendmail(const char *restrict *const restrict failure)
 		      failure);
 }
 
-#define READ_REQUEST_FAILURE(REASON)				\
-FAILURE_REASON("read_request",					\
-	       REASON)
 
 
 static inline bool
@@ -327,6 +323,10 @@ send_response(const int connect_descriptor,
 			    failure);
 }
 
+
+#define READ_REQUEST_FAILURE(REASON)				\
+FAILURE_REASON("read_request",					\
+	       REASON)
 static inline bool
 read_request(const int connect_descriptor,
 	     unsigned char *restrict *const restrict request,
@@ -430,38 +430,65 @@ send_email(const char *restrict *const restrict failure)
 	bool success;
 
 	success = pipe_report(pipe_fds,
-			      failure)
-	       && fork_report(&process_id,
 			      failure);
 
 	if (success) {
-		DEBUG("forked (send_email)\n");
+		success = fork_report(&process_id,
+				      failure);
 
-		if (process_id == 0) {
-			/* child process */
-			success = dup2_report(pipe_fds[0],
-					      STDIN_FILENO,
-					      failure)
-			       && close_report(pipe_fds[1],
-					       failure);
+		if (success) {
+			DEBUG("forked (send_email)\n");
 
-			if (success) {
-				exec_sendmail(failure);
-				success = false;
+			if (process_id == 0) {
+				/* child process */
+				success = dup2_report(pipe_fds[0],
+						      STDIN_FILENO,
+						      failure);
+				if (success) {
+					success = close_report(pipe_fds[1],
+							       failure);
+
+					if (success) {
+						exec_sendmail(failure);
+						success = false;
+
+					} else {
+						close_muffle(pipe_fds[0]);
+					}
+
+				} else {
+					close_muffle(pipe_fds[0]);
+					close_muffle(pipe_fds[1]);
+				}
+			} else {
+				/* parent process */
+				success = close_report(pipe_fds[0],
+						       failure);
+
+				if (success) {
+				       success = write_email_body(pipe_fds[1],
+								  failure);
+
+				       if (success) {
+					       success
+					       = close_report(pipe_fds[1],
+							      failure);
+
+						if (success) {
+							exit(EXIT_SUCCESS);
+							__builtin_unreachable();
+						}
+				       } else {
+					       close_muffle(pipe_fds[1]);
+
+				       }
+				} else {
+					close_muffle(pipe_fds[1]);
+				}
 			}
 		} else {
-			/* parent process */
-			success = close_report(pipe_fds[0],
-					       failure)
-			       && write_email_body(pipe_fds[1],
-						   failure)
-			       && close_report(pipe_fds[1],
-					       failure);
-
-			if (success) {
-				exit(EXIT_SUCCESS);
-				__builtin_unreachable();
-			}
+			close_muffle(pipe_fds[0]);
+			close_muffle(pipe_fds[1]);
 		}
 	}
 
