@@ -9,7 +9,7 @@
 #define REQUEST_BUFFER_SIZE	4096
 #define SERVER_PORT		80
 #define LISTEN_QUEUE		128
-#define TOKEN			"\"dummy_token\""
+#define TOKEN			"dummy_token"
 
 
 #if DO_DEBUG
@@ -550,7 +550,7 @@ read_request(const int connect_descriptor,
 #define PUT_EMAIL_7(PTR) PUT_STRING_WIDTH(PTR, EMAIL_7, 13)
 
 #define EMAIL_8								\
-":\n"									\
+".\n"									\
 "<blockquote>"
 #define PUT_EMAIL_8(PTR) PUT_STRING_WIDTH(PTR, EMAIL_8, 14)
 
