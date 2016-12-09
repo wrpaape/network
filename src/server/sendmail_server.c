@@ -359,6 +359,69 @@ read_request(const int connect_descriptor,
 	return success;
 }
 
+// From: ejabberd <donotreply@ejabberd.com>
+// To: [NAME] <[EMAIL]>
+// Subject: [FROM] mentioned you in room "[ROOM]"
+// MIME-Version: 1.0
+// Content-Type: text/html
+//
+// <html>
+// <head>
+// <title>ejabberd Mention Notification</title>
+// </head>
+// <body>
+// <strong>[FROM]</strong> mentioned you in room <strong>[ROOM]</strong> on [TIME]:
+// <blockquote>[MESSAGE]</blockquote>
+// </body>
+// </html>
+
+#define EMAIL_1								\
+"From: ejabberd <donotreply@ejabberd.com>\n"				\
+"To: "
+#define PUT_EMAIL_1(PTR) PUT_STRING_WIDTH(PTR, EMAIL_1, 45)
+
+#define EMAIL_2 " <"
+#define PUT_EMAIL_2(PTR) PUT_STRING_WIDTH(PTR, EMAIL_2, 2)
+
+#define EMAIL_3 ">\nSubject: "
+#define PUT_EMAIL_3(PTR) PUT_STRING_WIDTH(PTR, EMAIL_3, 11)
+
+#define EMAIL_4 " mentioned you in room \""
+#define PUT_EMAIL_4(PTR) PUT_STRING_WIDTH(PTR, EMAIL_4, 24)
+
+#define EMAIL_5								\
+"\"\n"									\
+"MIME-Version: 1.0\n"							\
+"Content-Type: text/html\n"						\
+"\n"									\
+"<html>\n"								\
+"<head>\n"								\
+"<title>ejabberd Mention Notification</title>\n"			\
+"</head>\n"								\
+"<body>\n"								\
+"<strong>"
+#define PUT_EMAIL_5(PTR) PTR = put_string_size(PTR, EMAIL_5, sizeof(EMAIL5) - 1)
+
+#define EMAIL_6 "</strong> mentioned you in room <strong>"
+#define PUT_EMAIL_6(PTR) PUT_STRING_WIDTH(PTR, EMAIL_6, 40)
+
+#define EMAIL_7 "</strong> on "
+#define PUT_EMAIL_7(PTR) PUT_STRING_WIDTH(PTR, EMAIL_7, 13)
+
+#define EMAIL_8								\
+":\n"									\
+"<blockquote>"
+#define PUT_EMAIL_8(PTR) PUT_STRING_WIDTH(PTR, EMAIL_8, 14)
+
+
+#define EMAIL_8								\
+"</blockquote>\n"							\
+"</body>\n"								\
+"</html>"
+#define PUT_EMAIL_9(PTR) PUT_STRING_WIDTH(PTR, EMAIL_9, 29)
+
+
+
 #define EMAIL_BODY_1 "User "
 #define PUT_EMAIL_BODY_1(PTR)						\
 PUT_STRING_WIDTH(PTR,							\
