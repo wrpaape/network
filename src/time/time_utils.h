@@ -316,7 +316,7 @@ timestamp_set_month_day(struct Timestamp *const restrict timestamp,
 
 inline void
 timestamp_init(struct Timestamp *const restrict timestamp,
-		const time_t time)
+	       const time_t time)
 {
 	uint64_t rem_seconds = time + TIME_SECONDS_OFFSET;
 

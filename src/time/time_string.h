@@ -44,6 +44,7 @@ PTR = (__typeof__(PTR)) (((struct DatetimeBuffer *restrict) PTR) + 1l);})
  *─────────────────────────────────────────────────────────────────────────── */
 extern const char *weekday_map[7];
 extern const char *month_map[13];
+extern const char *double_digit_map[60];
 
 
 inline char *
@@ -70,223 +71,30 @@ put_year(char *restrict string,
 }
 
 inline char *
-put_month(char *restrict string,
-	  const unsigned int month)
-{
-	switch (month) {
-	case 12u: PUT_STRING_WIDTH(string, "12", 2); return string;
-	case 11u: PUT_STRING_WIDTH(string, "11", 2); return string;
-	case 10u: PUT_STRING_WIDTH(string, "10", 2); return string;
-	case  9u: PUT_STRING_WIDTH(string, "09", 2); return string;
-	case  8u: PUT_STRING_WIDTH(string, "08", 2); return string;
-	case  7u: PUT_STRING_WIDTH(string, "07", 2); return string;
-	case  6u: PUT_STRING_WIDTH(string, "06", 2); return string;
-	case  5u: PUT_STRING_WIDTH(string, "05", 2); return string;
-	case  4u: PUT_STRING_WIDTH(string, "04", 2); return string;
-	case  3u: PUT_STRING_WIDTH(string, "03", 2); return string;
-	case  2u: PUT_STRING_WIDTH(string, "02", 2); return string;
-	default:  PUT_STRING_WIDTH(string, "01", 2); return string;
-	}
-}
-
-inline char *
-put_day(char *restrict string,
-	const unsigned int day)
-{
-	switch (day) {
-	case 31u: PUT_STRING_WIDTH(string, "31", 2); return string;
-	case 30u: PUT_STRING_WIDTH(string, "30", 2); return string;
-	case 29u: PUT_STRING_WIDTH(string, "29", 2); return string;
-	case 28u: PUT_STRING_WIDTH(string, "28", 2); return string;
-	case 27u: PUT_STRING_WIDTH(string, "27", 2); return string;
-	case 26u: PUT_STRING_WIDTH(string, "26", 2); return string;
-	case 25u: PUT_STRING_WIDTH(string, "25", 2); return string;
-	case 24u: PUT_STRING_WIDTH(string, "24", 2); return string;
-	case 23u: PUT_STRING_WIDTH(string, "23", 2); return string;
-	case 22u: PUT_STRING_WIDTH(string, "22", 2); return string;
-	case 21u: PUT_STRING_WIDTH(string, "21", 2); return string;
-	case 20u: PUT_STRING_WIDTH(string, "20", 2); return string;
-	case 19u: PUT_STRING_WIDTH(string, "19", 2); return string;
-	case 18u: PUT_STRING_WIDTH(string, "18", 2); return string;
-	case 17u: PUT_STRING_WIDTH(string, "17", 2); return string;
-	case 16u: PUT_STRING_WIDTH(string, "16", 2); return string;
-	case 15u: PUT_STRING_WIDTH(string, "15", 2); return string;
-	case 14u: PUT_STRING_WIDTH(string, "14", 2); return string;
-	case 13u: PUT_STRING_WIDTH(string, "13", 2); return string;
-	case 12u: PUT_STRING_WIDTH(string, "12", 2); return string;
-	case 11u: PUT_STRING_WIDTH(string, "11", 2); return string;
-	case 10u: PUT_STRING_WIDTH(string, "10", 2); return string;
-	case  9u: PUT_STRING_WIDTH(string, "09", 2); return string;
-	case  8u: PUT_STRING_WIDTH(string, "08", 2); return string;
-	case  7u: PUT_STRING_WIDTH(string, "07", 2); return string;
-	case  6u: PUT_STRING_WIDTH(string, "06", 2); return string;
-	case  3u: PUT_STRING_WIDTH(string, "03", 2); return string;
-	case  2u: PUT_STRING_WIDTH(string, "02", 2); return string;
-	default:  PUT_STRING_WIDTH(string, "01", 2); return string;
-	}
-}
-
-inline char *
 put_time(char *restrict string,
 	 const unsigned int hour,
 	 const unsigned int minute,
 	 const unsigned int second)
 {
 	/* "HH:" */
-	switch (hour) {
-	case 23u: PUT_STRING_WIDTH(string, "23:", 3); break;
-	case 22u: PUT_STRING_WIDTH(string, "22:", 3); break;
-	case 21u: PUT_STRING_WIDTH(string, "21:", 3); break;
-	case 20u: PUT_STRING_WIDTH(string, "20:", 3); break;
-	case 19u: PUT_STRING_WIDTH(string, "19:", 3); break;
-	case 18u: PUT_STRING_WIDTH(string, "18:", 3); break;
-	case 17u: PUT_STRING_WIDTH(string, "17:", 3); break;
-	case 16u: PUT_STRING_WIDTH(string, "16:", 3); break;
-	case 15u: PUT_STRING_WIDTH(string, "15:", 3); break;
-	case 14u: PUT_STRING_WIDTH(string, "14:", 3); break;
-	case 13u: PUT_STRING_WIDTH(string, "13:", 3); break;
-	case 12u: PUT_STRING_WIDTH(string, "12:", 3); break;
-	case 11u: PUT_STRING_WIDTH(string, "11:", 3); break;
-	case 10u: PUT_STRING_WIDTH(string, "10:", 3); break;
-	case  9u: PUT_STRING_WIDTH(string, "09:", 3); break;
-	case  8u: PUT_STRING_WIDTH(string, "08:", 3); break;
-	case  7u: PUT_STRING_WIDTH(string, "07:", 3); break;
-	case  6u: PUT_STRING_WIDTH(string, "06:", 3); break;
-	case  5u: PUT_STRING_WIDTH(string, "05:", 3); break;
-	case  4u: PUT_STRING_WIDTH(string, "04:", 3); break;
-	case  3u: PUT_STRING_WIDTH(string, "03:", 3); break;
-	case  2u: PUT_STRING_WIDTH(string, "02:", 3); break;
-	case  1u: PUT_STRING_WIDTH(string, "01:", 3); break;
-	default:  PUT_STRING_WIDTH(string, "00:", 3);
-	}
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[hour],
+			 2);
+
+	PUT_CHAR(string, ':');
 
 	/* "MM:" */
-	switch (minute) {
-	case 59u: PUT_STRING_WIDTH(string, "59:", 3); break;
-	case 58u: PUT_STRING_WIDTH(string, "58:", 3); break;
-	case 57u: PUT_STRING_WIDTH(string, "57:", 3); break;
-	case 56u: PUT_STRING_WIDTH(string, "56:", 3); break;
-	case 55u: PUT_STRING_WIDTH(string, "55:", 3); break;
-	case 54u: PUT_STRING_WIDTH(string, "54:", 3); break;
-	case 53u: PUT_STRING_WIDTH(string, "53:", 3); break;
-	case 52u: PUT_STRING_WIDTH(string, "52:", 3); break;
-	case 51u: PUT_STRING_WIDTH(string, "51:", 3); break;
-	case 50u: PUT_STRING_WIDTH(string, "50:", 3); break;
-	case 49u: PUT_STRING_WIDTH(string, "49:", 3); break;
-	case 48u: PUT_STRING_WIDTH(string, "48:", 3); break;
-	case 47u: PUT_STRING_WIDTH(string, "47:", 3); break;
-	case 46u: PUT_STRING_WIDTH(string, "46:", 3); break;
-	case 45u: PUT_STRING_WIDTH(string, "45:", 3); break;
-	case 44u: PUT_STRING_WIDTH(string, "44:", 3); break;
-	case 43u: PUT_STRING_WIDTH(string, "43:", 3); break;
-	case 42u: PUT_STRING_WIDTH(string, "42:", 3); break;
-	case 41u: PUT_STRING_WIDTH(string, "41:", 3); break;
-	case 40u: PUT_STRING_WIDTH(string, "40:", 3); break;
-	case 39u: PUT_STRING_WIDTH(string, "39:", 3); break;
-	case 38u: PUT_STRING_WIDTH(string, "38:", 3); break;
-	case 37u: PUT_STRING_WIDTH(string, "37:", 3); break;
-	case 36u: PUT_STRING_WIDTH(string, "36:", 3); break;
-	case 35u: PUT_STRING_WIDTH(string, "35:", 3); break;
-	case 34u: PUT_STRING_WIDTH(string, "34:", 3); break;
-	case 33u: PUT_STRING_WIDTH(string, "33:", 3); break;
-	case 32u: PUT_STRING_WIDTH(string, "32:", 3); break;
-	case 31u: PUT_STRING_WIDTH(string, "31:", 3); break;
-	case 30u: PUT_STRING_WIDTH(string, "30:", 3); break;
-	case 29u: PUT_STRING_WIDTH(string, "29:", 3); break;
-	case 28u: PUT_STRING_WIDTH(string, "28:", 3); break;
-	case 27u: PUT_STRING_WIDTH(string, "27:", 3); break;
-	case 26u: PUT_STRING_WIDTH(string, "26:", 3); break;
-	case 25u: PUT_STRING_WIDTH(string, "25:", 3); break;
-	case 24u: PUT_STRING_WIDTH(string, "24:", 3); break;
-	case 23u: PUT_STRING_WIDTH(string, "23:", 3); break;
-	case 22u: PUT_STRING_WIDTH(string, "22:", 3); break;
-	case 21u: PUT_STRING_WIDTH(string, "21:", 3); break;
-	case 20u: PUT_STRING_WIDTH(string, "20:", 3); break;
-	case 19u: PUT_STRING_WIDTH(string, "19:", 3); break;
-	case 18u: PUT_STRING_WIDTH(string, "18:", 3); break;
-	case 17u: PUT_STRING_WIDTH(string, "17:", 3); break;
-	case 16u: PUT_STRING_WIDTH(string, "16:", 3); break;
-	case 15u: PUT_STRING_WIDTH(string, "15:", 3); break;
-	case 14u: PUT_STRING_WIDTH(string, "14:", 3); break;
-	case 13u: PUT_STRING_WIDTH(string, "13:", 3); break;
-	case 12u: PUT_STRING_WIDTH(string, "12:", 3); break;
-	case 11u: PUT_STRING_WIDTH(string, "11:", 3); break;
-	case 10u: PUT_STRING_WIDTH(string, "10:", 3); break;
-	case  9u: PUT_STRING_WIDTH(string, "09:", 3); break;
-	case  8u: PUT_STRING_WIDTH(string, "08:", 3); break;
-	case  7u: PUT_STRING_WIDTH(string, "07:", 3); break;
-	case  6u: PUT_STRING_WIDTH(string, "06:", 3); break;
-	case  5u: PUT_STRING_WIDTH(string, "05:", 3); break;
-	case  4u: PUT_STRING_WIDTH(string, "04:", 3); break;
-	case  3u: PUT_STRING_WIDTH(string, "03:", 3); break;
-	case  2u: PUT_STRING_WIDTH(string, "02:", 3); break;
-	case  1u: PUT_STRING_WIDTH(string, "01:", 3); break;
-	default:  PUT_STRING_WIDTH(string, "00:", 3);
-	}
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[minute],
+			 2);
+
+	PUT_CHAR(string, ':');
 
 	/* "SS" */
-	switch (second) {
-	case 59u: PUT_STRING_WIDTH(string, "59", 2); return string;
-	case 58u: PUT_STRING_WIDTH(string, "58", 2); return string;
-	case 57u: PUT_STRING_WIDTH(string, "57", 2); return string;
-	case 56u: PUT_STRING_WIDTH(string, "56", 2); return string;
-	case 55u: PUT_STRING_WIDTH(string, "55", 2); return string;
-	case 54u: PUT_STRING_WIDTH(string, "54", 2); return string;
-	case 53u: PUT_STRING_WIDTH(string, "53", 2); return string;
-	case 52u: PUT_STRING_WIDTH(string, "52", 2); return string;
-	case 51u: PUT_STRING_WIDTH(string, "51", 2); return string;
-	case 50u: PUT_STRING_WIDTH(string, "50", 2); return string;
-	case 49u: PUT_STRING_WIDTH(string, "49", 2); return string;
-	case 48u: PUT_STRING_WIDTH(string, "48", 2); return string;
-	case 47u: PUT_STRING_WIDTH(string, "47", 2); return string;
-	case 46u: PUT_STRING_WIDTH(string, "46", 2); return string;
-	case 45u: PUT_STRING_WIDTH(string, "45", 2); return string;
-	case 44u: PUT_STRING_WIDTH(string, "44", 2); return string;
-	case 43u: PUT_STRING_WIDTH(string, "43", 2); return string;
-	case 42u: PUT_STRING_WIDTH(string, "42", 2); return string;
-	case 41u: PUT_STRING_WIDTH(string, "41", 2); return string;
-	case 40u: PUT_STRING_WIDTH(string, "40", 2); return string;
-	case 39u: PUT_STRING_WIDTH(string, "39", 2); return string;
-	case 38u: PUT_STRING_WIDTH(string, "38", 2); return string;
-	case 37u: PUT_STRING_WIDTH(string, "37", 2); return string;
-	case 36u: PUT_STRING_WIDTH(string, "36", 2); return string;
-	case 35u: PUT_STRING_WIDTH(string, "35", 2); return string;
-	case 34u: PUT_STRING_WIDTH(string, "34", 2); return string;
-	case 33u: PUT_STRING_WIDTH(string, "33", 2); return string;
-	case 32u: PUT_STRING_WIDTH(string, "32", 2); return string;
-	case 31u: PUT_STRING_WIDTH(string, "31", 2); return string;
-	case 30u: PUT_STRING_WIDTH(string, "30", 2); return string;
-	case 29u: PUT_STRING_WIDTH(string, "29", 2); return string;
-	case 28u: PUT_STRING_WIDTH(string, "28", 2); return string;
-	case 27u: PUT_STRING_WIDTH(string, "27", 2); return string;
-	case 26u: PUT_STRING_WIDTH(string, "26", 2); return string;
-	case 25u: PUT_STRING_WIDTH(string, "25", 2); return string;
-	case 24u: PUT_STRING_WIDTH(string, "24", 2); return string;
-	case 23u: PUT_STRING_WIDTH(string, "23", 2); return string;
-	case 22u: PUT_STRING_WIDTH(string, "22", 2); return string;
-	case 21u: PUT_STRING_WIDTH(string, "21", 2); return string;
-	case 20u: PUT_STRING_WIDTH(string, "20", 2); return string;
-	case 19u: PUT_STRING_WIDTH(string, "19", 2); return string;
-	case 18u: PUT_STRING_WIDTH(string, "18", 2); return string;
-	case 17u: PUT_STRING_WIDTH(string, "17", 2); return string;
-	case 16u: PUT_STRING_WIDTH(string, "16", 2); return string;
-	case 15u: PUT_STRING_WIDTH(string, "15", 2); return string;
-	case 14u: PUT_STRING_WIDTH(string, "14", 2); return string;
-	case 13u: PUT_STRING_WIDTH(string, "13", 2); return string;
-	case 12u: PUT_STRING_WIDTH(string, "12", 2); return string;
-	case 11u: PUT_STRING_WIDTH(string, "11", 2); return string;
-	case 10u: PUT_STRING_WIDTH(string, "10", 2); return string;
-	case  9u: PUT_STRING_WIDTH(string, "09", 2); return string;
-	case  8u: PUT_STRING_WIDTH(string, "08", 2); return string;
-	case  7u: PUT_STRING_WIDTH(string, "07", 2); return string;
-	case  6u: PUT_STRING_WIDTH(string, "06", 2); return string;
-	case  5u: PUT_STRING_WIDTH(string, "05", 2); return string;
-	case  4u: PUT_STRING_WIDTH(string, "04", 2); return string;
-	case  3u: PUT_STRING_WIDTH(string, "03", 2); return string;
-	case  2u: PUT_STRING_WIDTH(string, "02", 2); return string;
-	case  1u: PUT_STRING_WIDTH(string, "01", 2); return string;
-	default:  PUT_STRING_WIDTH(string, "00", 2); return string;
-	}
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[second],
+			 2);
+	return string;
 }
 
 inline void
@@ -299,15 +107,17 @@ timestamp_string_init(char *restrict string,
 	*string = '-';
 	++string;
 
-	string = put_month(string,
-			   timestamp->month);
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[timestamp->month],
+			 2);
 
 	*string = '-';
 	++string;
 
 	/* "DD " */
-	string = put_day(string,
-			 timestamp->day);
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[timestamp->day],
+			 2);
 
 	*string = ' ';
 	++string;
@@ -918,12 +728,6 @@ weekday_string(const unsigned int year,
 	return weekday_map[julian_day_number % 7];
 }
 
-inline const char *
-month_string(const unsigned int month)
-{
-	return month_map[month];
-}
-
 
 inline char *
 put_http_date(char *restrict string,
@@ -937,35 +741,81 @@ put_http_date(char *restrict string,
 
 	PUT_STRING_WIDTH(string, ", ", 2);
 
-	string = put_day(string,
-			 timestamp->day);
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[timestamp->day],
+			 2);
 
-	*string = ' ';
-	++string;
+	PUT_CHAR(string, ' ');
 
 	PUT_STRING_WIDTH(string,
-			 month_string(timestamp->month),
+			 month_map[timestamp->month],
 			 3);
 
-	*string = ' ';
-	++string;
+	PUT_CHAR(string, ' ');
 
 	string = put_year(string,
 			  timestamp->year);
 
-	*string = ' ';
-	++string;
+	PUT_CHAR(string, ' ');
 
 	string = put_time(string,
 			  timestamp->hour,
 			  timestamp->minute,
 			  timestamp->second);
 
-	SET_STRING_WIDTH(string,
-			 " GMT",
-			 4);
+	PUT_STRING_WIDTH(string, " GMT", 4);
 
-	return string + 4;
+	return string;
+}
+
+inline char *
+put_http_time_element(char *restrict string,
+		      const struct Timestamp *const restrict timestamp)
+{
+	PUT_STRING_WIDTH(string, "<time datetime=\"", 16);
+
+	string = put_year(string,
+			  timestamp->year);
+
+	PUT_CHAR(string, '-');
+
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[timestamp->month],
+			 2);
+
+	PUT_CHAR(string, '-');
+
+	char *const restrict day = string;
+
+	PUT_STRING_WIDTH(string,
+			 double_digit_map[timestamp->day],
+			 2);
+
+	PUT_CHAR(string, 'T');
+
+	char *const restrict time = string;
+
+	string = put_time(string,
+			  timestamp->hour,
+			  timestamp->minute,
+			  timestamp->second);
+
+	PUT_STRING_WIDTH(string, "\">", 2);
+
+	string = put_string(string,
+			    month_map[timestamp->month]);
+
+	PUT_CHAR(string, ' ');
+
+	PUT_STRING_WIDTH(string, day, 2);
+
+	PUT_STRING_WIDTH(string, ", ", 2);
+
+	PUT_STRING_WIDTH(string, time, 8);
+
+	PUT_STRING_WIDTH(string, "</time>", 7);
+
+	return string;
 }
 
 #endif /* ifndef NETWORK_TIME_TIME_STRING_H_ */

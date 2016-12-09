@@ -25,8 +25,9 @@ fflush(stdout)
 
 #define FOR_ALL_NON_TOKEN_KEYS(MACRO)					\
 MACRO(email);								\
-MACRO(recipient);							\
-MACRO(sender);								\
+MACRO(name);								\
+MACRO(mention);								\
+MACRO(from);								\
 MACRO(room);								\
 MACRO(message);								\
 MACRO(mentions);							\
@@ -56,6 +57,8 @@ struct KeyFinder {
 static struct KeyFinder find_ ## KEY  = KEY_FINDER_INIT(#KEY);		\
 static struct String KEY
 FOR_ALL_KEYS(DECLARE_KEY);
+
+uintmax_t time_parsed;
 
 static inline void
 key_finder_init_skip(struct KeyFinder *const restrict finder)
@@ -378,7 +381,7 @@ read_request(const int connect_descriptor,
 #define EMAIL_1								\
 "From: ejabberd <donotreply@ejabberd.com>\n"				\
 "To: "
-#define PUT_EMAIL_1(PTR) PUT_STRING_WIDTH(PTR, EMAIL_1, 45)
+#define PUT_EMAIL_1(PTR) PTR = put_string_size(PTR, EMAIL_1, sizeof(EMAIL_1) - 1)
 
 #define EMAIL_2 " <"
 #define PUT_EMAIL_2(PTR) PUT_STRING_WIDTH(PTR, EMAIL_2, 2)
@@ -400,10 +403,10 @@ read_request(const int connect_descriptor,
 "</head>\n"								\
 "<body>\n"								\
 "<strong>"
-#define PUT_EMAIL_5(PTR) PTR = put_string_size(PTR, EMAIL_5, sizeof(EMAIL5) - 1)
+#define PUT_EMAIL_5(PTR) PTR = put_string_size(PTR, EMAIL_5, sizeof(EMAIL_5) - 1)
 
 #define EMAIL_6 "</strong> mentioned you in room <strong>"
-#define PUT_EMAIL_6(PTR) PUT_STRING_WIDTH(PTR, EMAIL_6, 40)
+#define PUT_EMAIL_6(PTR) PTR = put_string_size(PTR, EMAIL_6, sizeof(EMAIL_6) - 1)
 
 #define EMAIL_7 "</strong> on "
 #define PUT_EMAIL_7(PTR) PUT_STRING_WIDTH(PTR, EMAIL_7, 13)
@@ -414,65 +417,81 @@ read_request(const int connect_descriptor,
 #define PUT_EMAIL_8(PTR) PUT_STRING_WIDTH(PTR, EMAIL_8, 14)
 
 
-#define EMAIL_8								\
+#define EMAIL_9								\
 "</blockquote>\n"							\
 "</body>\n"								\
 "</html>"
 #define PUT_EMAIL_9(PTR) PUT_STRING_WIDTH(PTR, EMAIL_9, 29)
 
 
+static inline char *
+put_time_element(char *restrict string)
+{
+	struct Timestamp timestamp;
 
-#define EMAIL_BODY_1 "User "
-#define PUT_EMAIL_BODY_1(PTR)						\
-PUT_STRING_WIDTH(PTR,							\
-		 EMAIL_BODY_1,						\
-		 5)
+	timestamp_init(&timestamp,
+		       (time_t) time_parsed);
 
-#define EMAIL_BODY_2 " mentioned you in room "
-#define PUT_EMAIL_BODY_2(PTR)						\
-PUT_STRING_WIDTH(PTR,							\
-		 EMAIL_BODY_2,						\
-		 23)
-#define EMAIL_BODY_3 "."
-#define PUT_EMAIL_BODY_3(PTR)						\
-PUT_CHAR(PTR, '.')
-
-#define LENGTH_EMAIL_BODY_BASE						\
-(sizeof(EMAIL_BODY_1 EMAIL_BODY_2 EMAIL_BODY_3) - 1)
-
-#define WRITE_EMAIL_BODY_FAILURE(REASON)				\
-FAILURE_REASON("write_email_body",					\
-	       REASON)
+	return put_http_time_element(string,
+				     &timestamp);
+}
 
 static inline bool
 write_email_body(const int sendmail_stdin,
 		 const char *restrict *const restrict failure)
 {
-	char buffer[512];
+	char buffer[REQUEST_BUFFER_SIZE];
 	char *restrict ptr;
-
-	if ((  LENGTH_EMAIL_BODY_BASE
-	     + sender.length
-	     + room.length) > sizeof(buffer)) {
-		*failure = WRITE_EMAIL_BODY_FAILURE("buffer overflow");
-		return false;
-	}
 
 	ptr = &buffer[0];
 
-	PUT_EMAIL_BODY_1(ptr);
+	PUT_EMAIL_1(ptr);
 
 	ptr = put_string_size(ptr,
-			      sender.bytes,
-			      sender.length);
+			      name.bytes,
+			      name.length);
 
-	PUT_EMAIL_BODY_2(ptr);
+	PUT_EMAIL_2(ptr);
+
+	ptr = put_string_size(ptr,
+			      email.bytes,
+			      email.length);
+
+	PUT_EMAIL_3(ptr);
+
+	ptr = put_string_size(ptr,
+			      from.bytes,
+			      from.length);
+
+	PUT_EMAIL_4(ptr);
 
 	ptr = put_string_size(ptr,
 			      room.bytes,
 			      room.length);
 
-	PUT_EMAIL_BODY_3(ptr);
+	PUT_EMAIL_5(ptr);
+
+	ptr = put_string_size(ptr,
+			      from.bytes,
+			      from.length);
+
+	PUT_EMAIL_6(ptr);
+
+	ptr = put_string_size(ptr,
+			      room.bytes,
+			      room.length);
+
+	PUT_EMAIL_7(ptr);
+
+	ptr = put_time_element(ptr);
+
+	PUT_EMAIL_8(ptr);
+
+	ptr = put_string_size(ptr,
+			      message.bytes,
+			      message.length);
+
+	PUT_EMAIL_9(ptr);
 
 	DEBUG("write_email_body:\n\"\"\"\n%.*s\n\"\"\"\n",
 	      (int) (ptr - &buffer[0]),
