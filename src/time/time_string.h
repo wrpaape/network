@@ -803,6 +803,13 @@ put_http_time_element(char *restrict string,
 	PUT_STRING_WIDTH(string, "\">", 2);
 
 	string = put_string(string,
+			    weekday_string(timestamp->year,
+					   timestamp->month,
+					   timestamp->day));
+
+	PUT_STRING_WIDTH(string, ", ", 2);
+
+	string = put_string(string,
 			    month_map[timestamp->month]);
 
 	PUT_CHAR(string, ' ');

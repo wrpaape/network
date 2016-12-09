@@ -23,8 +23,20 @@ fflush(stdout)
 #endif /* if DO_DEBUG */
 
 
-/* struct declarations
- * ────────────────────────────────────────────────────────────────────────── */
+#define FOR_ALL_NON_TOKEN_KEYS(MACRO)					\
+MACRO(email);								\
+MACRO(name);								\
+MACRO(mention);								\
+MACRO(from);								\
+MACRO(room);								\
+MACRO(message);								\
+MACRO(mentions);							\
+MACRO(timestamp)
+
+#define FOR_ALL_KEYS(MACRO)						\
+FOR_ALL_NON_TOKEN_KEYS(MACRO);						\
+MACRO(token)
+
 struct KeyFinder {
 	const unsigned char *key;
 	unsigned int length;
@@ -41,35 +53,14 @@ struct KeyFinder {
 	}								\
 }
 
+#define DECLARE_KEY(KEY)						\
+static struct KeyFinder find_ ## KEY  = KEY_FINDER_INIT(#KEY);		\
+static struct String KEY
+FOR_ALL_KEYS(DECLARE_KEY);
+
 /* global variables
  * ────────────────────────────────────────────────────────────────────────── */
-static struct KeyFinder find_json = {
-	.key    = (const unsigned char *) "\r\n\r\n{",
-	.length = 5,
-	.skip   = {
-		[0 ... UCHAR_MAX]  = 5
-	}
-};
-static struct String json;
-
-static struct KeyFinder find_token     = KEY_FINDER_INIT("token");
-
-static struct KeyFinder find_email     = KEY_FINDER_INIT("email");
-static struct String email;
-static struct KeyFinder find_name      = KEY_FINDER_INIT("name");
-static struct String name;
-/* static struct KeyFinder find_mention   = KEY_FINDER_INIT("mention"); */
-/* static struct String mention; */
-static struct KeyFinder find_from      = KEY_FINDER_INIT("from");
-static struct String from;
-static struct KeyFinder find_room      = KEY_FINDER_INIT("room");
-static struct String room;
-static struct KeyFinder find_message   = KEY_FINDER_INIT("message");
-static struct String message;
-/* static struct KeyFinder find_mentions  = KEY_FINDER_INIT("mentions"); */
-/* static struct String mentions; */
-static struct KeyFinder find_timestamp = KEY_FINDER_INIT("timestamp");
-time_t timestamp_time;
+uintmax_t time_parsed;
 
 static inline void
 key_finder_init_skip(struct KeyFinder *const restrict finder)
@@ -89,16 +80,8 @@ key_finder_init_skip(struct KeyFinder *const restrict finder)
 static inline void
 init_key_finders(void)
 {
-	key_finder_init_skip(&find_json);
-	key_finder_init_skip(&find_token);
-	key_finder_init_skip(&find_email);
-	key_finder_init_skip(&find_name);
-	/* key_finder_init_skip(&find_mention); */
-	key_finder_init_skip(&find_from);
-	key_finder_init_skip(&find_room);
-	key_finder_init_skip(&find_message);
-	/* key_finder_init_skip(&find_mentions); */
-	key_finder_init_skip(&find_timestamp);
+#define INIT_SKIP(KEY) key_finder_init_skip(&(find_ ## KEY))
+	FOR_ALL_KEYS(INIT_SKIP);
 }
 
 static inline unsigned char *
@@ -142,65 +125,12 @@ key_finder_find(const struct KeyFinder *const restrict finder,
 	return NULL;
 }
 
-#define KEY_INIT_STRING_FAILURE(REASON)					\
-FAILURE_REASON("key_init_string",					\
-	       REASON)
-#define KEY_INIT_STRING_FAILURE_BAD_KEY					\
-KEY_INIT_STRING_FAILURE("ill-formed key")
-#define KEY_INIT_STRING_FAILURE_BAD_JSON				\
-KEY_INIT_STRING_FAILURE("ill-formed JSON")
-static inline bool
-key_init_string(struct String *const restrict key,
-		unsigned char *restrict text,
-		const char *restrict *const restrict failure)
-{
-	if (*text != '\"') {
-		*failure = KEY_INIT_STRING_FAILURE_BAD_KEY;
-		return false;
-	}
 
-	++text;
+static inline void
+key_init(struct String *const restrict key,
+	 unsigned char *restrict text)
+{
 	key->bytes = (char *) text;
-
-	while (1) {
-		switch (*text) {
-		case '\"':
-			*text = '\0';
-			key->length = ((char *) text) - key->bytes;
-			return true;
-
-		case '\0':
-			*failure = KEY_INIT_STRING_FAILURE_BAD_JSON;
-			return false;
-
-		case '\\':
-			++text;
-			if (*text == '\0') {
-				*failure = KEY_INIT_STRING_FAILURE_BAD_KEY;
-				return false;
-			}
-			/* fall through */
-		default:
-			++text;
-		}
-	}
-}
-
-#define PARSE_TIMESTAMP_FAILURE(REASON)					\
-FAILURE_REASON("parse_timestamp",					\
-	       REASON)
-#define PARSE_TIMESTAMP_FAILURE_BAD_INT					\
-PARSE_TIMESTAMP_FAILURE("improper integer")
-#define PARSE_TIMESTAMP_FAILURE_BAD_JSON				\
-PARSE_TIMESTAMP_FAILURE("ill-formed JSON")
-
-static inline bool
-parse_timestamp(unsigned char *restrict text,
-		const char *restrict *const restrict failure)
-{
-	uintmax_t timestamp_parsed;
-
-	char *const restrict timestamp_string = (char *) text;
 
 	while (1) {
 		switch (*text) {
@@ -208,20 +138,9 @@ parse_timestamp(unsigned char *restrict text,
 		case ',':
 			*text = '\0';
 
-			const bool success
-			= (parse_uint(&timestamp_parsed,
-				      timestamp_string) != NULL);
-
-			if (success)
-				timestamp_time = (time_t) timestamp_parsed;
-			else
-				*failure = PARSE_TIMESTAMP_FAILURE_BAD_INT;
-
-			return success;
-
 		case '\0':
-			*failure = PARSE_TIMESTAMP_FAILURE_BAD_JSON;
-			return false;
+			key->length = ((char *) text) - key->bytes;
+			return;
 
 		default:
 			++text;
@@ -229,112 +148,57 @@ parse_timestamp(unsigned char *restrict text,
 	}
 }
 
-static inline bool
-find_http_json(unsigned char *const restrict request,
-	       const size_t length_request,
-	       const char *restrict *const restrict failure)
-{
-	json.bytes = (char *) key_finder_find(&find_json,
-					      request,
-					      length_request);
-
-	const bool success = (json.bytes != NULL);
-
-	if (success)
-		json.length = ((char *) (request + length_request))
-			    - json.bytes;
-	else
-		*failure = FAILURE_REASON("find_http_json",
-					  "failed to find HTTP POST json");
-
-	return success;
-}
-
 
 static inline bool
-find_keys(const char *restrict *const restrict failure)
+find_keys(unsigned char *const restrict text,
+	  const size_t length_text,
+	  const char *restrict *const restrict failure)
 {
 	unsigned char *restrict found;
 
-#define FIND_KEY(KEY)							\
-found = key_finder_find(&find_ ## KEY,					\
-			(const unsigned char *) json.bytes,		\
-			json.length);					\
-if (found == NULL) {							\
-	*failure = FAILURE_REASON("find_keys", "failed to find " #KEY);	\
-	return false;							\
-}									\
+#define FIND_KEYS_FAILURE(REASON)				\
+FAILURE_REASON("find_keys",					\
+	       REASON)
 
-#define FIND_KEY_STRING(KEY)						\
-FIND_KEY(KEY);								\
-if (!key_init_string(&(KEY),						\
-		     found,						\
-		     failure))						\
-	return false
+#define FIND_KEY(KEY)						\
+found = key_finder_find(&find_ ## KEY,				\
+			text,					\
+			length_text);				\
+if (found == NULL) {						\
+	*failure = FIND_KEYS_FAILURE("failed to find " #KEY);	\
+	return false;						\
+}								\
+key_init(&(KEY),						\
+	 found);						\
+DEBUG("found " #KEY ": \"%s\"\n", (KEY).bytes)
+	FOR_ALL_NON_TOKEN_KEYS(FIND_KEY);
 
-
-	FIND_KEY_STRING(email);
-	FIND_KEY_STRING(name);
-	FIND_KEY_STRING(from);
-	FIND_KEY_STRING(room);
-	FIND_KEY_STRING(message);
-	FIND_KEY(timestamp);
-	return parse_timestamp(found,
-			       failure);
+	return true;
 }
 
-
-
-
 static inline bool
-verify_request(void)
+verify_request(unsigned char *const restrict request,
+	       const size_t length_request)
 {
-	char *restrict ptr;
-	char *restrict token;
 
-	token = (char *) key_finder_find(&find_token,
-					 (const unsigned char *) json.bytes,
-					 json.length);
+	unsigned char *const restrict found_token
+	= key_finder_find(&find_token,
+			  request,
+			  length_request);
 
-	if (token == NULL) {
+	if (found_token == NULL) {
 		DEBUG("failed to find token\n");
 		return false;
 	}
 
+	key_init(&token,
+		 found_token);
 
-	if (*token != '\"') {
-		DEBUG("ill-formed token\n");
-		return false;
-	}
+	DEBUG("found token: \"%s\"\n",
+	      token.bytes);
 
-	++token;
-	ptr = token;
-
-	while (1) {
-		switch (*ptr) {
-		case '\"':
-			*ptr = '\0';
-			DEBUG("found token: \"%s\"\n",
-			      token);
-
-			return strings_equal(token,
-					     TOKEN);
-
-		case '\0':
-			DEBUG("ill-formed JSON\n");
-			return false;
-
-		case '\\':
-			++ptr;
-			if (*ptr == '\0') {
-				DEBUG("ill-formed token\n");
-				return false;
-			}
-			/* fall through */
-		default:
-			++ptr;
-		}
-	}
+	return strings_equal(token.bytes,
+			     TOKEN);
 }
 
 #if DO_DEBUG
@@ -568,7 +432,7 @@ put_time_element(char *restrict string)
 	struct Timestamp timestamp;
 
 	timestamp_init(&timestamp,
-		       timestamp_time);
+		       (time_t) time_parsed);
 
 	return put_http_time_element(string,
 				     &timestamp);
@@ -727,13 +591,11 @@ handle_request(const int connect_descriptor,
 	success = read_request(connect_descriptor,
 			       &request,
 			       &length_request,
-			       failure)
-	       && find_http_json(request,
-				 length_request,
-				 failure);
+			       failure);
 
 	if (success) {
-		if (verify_request()) {
+		if (verify_request(request,
+				   length_request)) {
 			DEBUG("valid token\n");
 			success = send_response(connect_descriptor,
 						"200 OK",
@@ -742,7 +604,9 @@ handle_request(const int connect_descriptor,
 			if (success) {
 				success = close_report(connect_descriptor,
 						       failure)
-				       && find_keys(failure)
+				       && find_keys(request,
+						    length_request,
+						    failure)
 				       && send_email(failure);
 				/* should only return on failure */
 
