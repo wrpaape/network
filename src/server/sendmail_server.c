@@ -840,9 +840,7 @@ main(void)
 			       &failure)))
 		exit_failure_print_message(failure);
 
-
 	init_key_finders();
-
 
 	while (1) {
 		length_client_address = sizeof(client_address);
